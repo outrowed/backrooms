@@ -45,6 +45,23 @@
         background-blend-mode:
             overlay, multiply, soft-light, multiply, multiply, normal;
     }
+    /* Mobile uses lightweight scrolling paint that matches desktop colors:
+       combines the olive gradient and chevron tile with multiply blend mode,
+       omitting heavy SVG turbulence filters and fixed viewport attachments. */
+    @media (max-width: 767px), (hover: none) and (pointer: coarse) {
+        body {
+            background-color: #9c9a58;
+            background-image:
+                linear-gradient(#bdb866, #a9a556), url("/backrooms-chevron.png");
+            background-size:
+                100% 100%,
+                150px auto;
+            background-repeat: no-repeat, repeat;
+            background-attachment: scroll, scroll;
+            background-blend-mode: multiply, normal;
+        }
+    }
+
     * {
         border-radius: 0;
     }

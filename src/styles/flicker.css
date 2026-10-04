@@ -42,6 +42,14 @@
         }
     }
 
+    /* Avoid continuous full-screen compositing on phones and touch tablets. */
+    @media (max-width: 767px), (hover: none) and (pointer: coarse) {
+        #flicker-overlay {
+            animation: none;
+            display: none;
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         #flicker-overlay {
             display: none;
