@@ -1,55 +1,93 @@
 import { createContext, useContext, useCallback, useEffect, useState, type ReactNode } from "react";
-import { type Day, days, hasVacancy, jakartaNow, roomInfo, type Snapshot } from "../../shared/rooms";
+import { type Day, days, FACULTIES, type FacultyInfo, hasVacancy, jakartaNow, roomInfo, type Snapshot } from "../../shared/rooms";
 
 /** Shared discovery state and request lifecycle, owned by the application provider. */
 function useRoomModel() {
     const initial = jakartaNow();
-    const [day, setDay] = useState<Day | "sabtu">(initial.day || "senin");
-    const [time, setTime] = useState(initial.day && initial.time >= "08:00" && initial.time < "18:00" ? initial.time : "08:00");
+    const [faculty, setFaculty] = useState<string>("fasilkom");
+    const [day, setDay] = useState<Day>(initial.day || "senin");
+    const [time, setTime] = useState(initial.time >= "08:00" && initial.time < "18:00" ? initial.time : "08:00");
     const [duration, setDuration] = useState(30);
     const [query, setQuery] = useState("");
     const [building, setBuilding] = useState("all");
     const [type, setType] = useState("all");
     const [vacantOnly, setVacantOnly] = useState(true);
+    const [includeVirtual, setIncludeVirtual] = useState(false);
+    const [showUnavailable, setShowUnavailable] = useState(false);
     const [data, setData] = useState<Snapshot>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const load = useCallback(async (signal?: AbortSignal) => {
+    const currentFaculty: FacultyInfo = FACULTIES.find(f => f.id === faculty) || FACULTIES[0];
+
+    const load = useCallback(async (targetFaculty = faculty, signal?: AbortSignal) => {
         setLoading(true);
         setError("");
 
         try {
-            const response = await fetch("/api/rooms/schedule", { signal });
+            const response = await fetch(`/api/rooms/schedule?faculty=${encodeURIComponent(targetFaculty)}`, { signal });
 
-            if (!response.ok) throw new Error("The schedule is unavailable. Try again in a moment.");
+            if (!response.ok) {
+                throw new Error("The schedule is unavailable. Try again in a moment.");
+            }
 
-            setData(await response.json());
+            const json: Snapshot = await response.json();
+            setData(json);
         }
-        catch (error) { if ((error as Error).name !== "AbortError") setError((error as Error).message); }
-        finally { if (!signal?.aborted) setLoading(false); }
-    }, []);
+        catch (error) {
+            if ((error as Error).name !== "AbortError") {
+                setError((error as Error).message);
+            }
+        }
+        finally {
+            if (!signal?.aborted) setLoading(false);
+        }
+    }, [faculty]);
 
     useEffect(() => {
-    // Load the public snapshot once; abort outstanding work when leaving the page
         const controller = new AbortController();
-        void load(controller.signal);
+        void load(faculty, controller.signal);
         return () => controller.abort();
-    }, [load]);
+    }, [faculty, load]);
 
-    const names = data ? [...new Set(days.flatMap(value => Object.keys(data.schedule[value])))].sort() : [];
+    const names = data?.schedule ? [...new Set(days.flatMap(value => Object.keys(data.schedule[value] || {})))].sort() : [];
     const candidates = names.filter((name) => {
-        const room = roomInfo(name);
+        const room = roomInfo(name, faculty);
+
+        if (!includeVirtual && room.isVirtual) return false;
+
         return name.toLowerCase().includes(query.trim().toLowerCase())
             && (building === "all" || room.building === building)
             && (type === "all" || room.type === type);
     });
 
-    const isVacant = (name: string, selected: Day) => hasVacancy(data?.schedule[selected][name], time, duration);
+    const isVacant = (name: string, selected: Day) => {
+        const slots = data?.schedule?.[selected]?.[name];
+        return hasVacancy(slots, time, duration);
+    };
 
-    const rooms = day === "sabtu" ? [] : candidates.filter(name => !vacantOnly || isVacant(name, day));
+    const hasScheduleForDay = (selected: Day) => {
+        if (!data?.schedule?.[selected]) return false;
+
+        return Object.keys(data.schedule[selected]).length > 0;
+    };
+
+    const rooms = candidates.filter((name) => {
+        const hasDayData = Boolean(data?.schedule?.[day] && name in data.schedule[day]);
+
+        if (!hasDayData) {
+            // Day has no definite schedule data for this room (e.g. Saturday or unscheduled day)
+            // Hidden by default; included only when user toggles showUnavailable and vacantOnly is off
+            return showUnavailable && !vacantOnly;
+        }
+
+        return !vacantOnly || isVacant(name, day);
+    });
 
     return {
+        faculty,
+        setFaculty,
+        currentFaculty,
         day,
         setDay,
         time,
@@ -64,12 +102,17 @@ function useRoomModel() {
         setType,
         vacantOnly,
         setVacantOnly,
+        includeVirtual,
+        setIncludeVirtual,
+        showUnavailable,
+        setShowUnavailable,
         data,
         loading,
         error,
         load,
         candidates,
         isVacant,
+        hasScheduleForDay,
         rooms,
     };
 }
@@ -83,12 +126,17 @@ export function RoomStateProvider({ children }: { children: ReactNode }) {
     const [clock, setClock] = useState(() => new Date());
 
     useEffect(() => {
-    // Share one WIB timer for the application; release it when the provider unmounts.
         const timer = setInterval(() => setClock(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
 
-    return <RoomContext.Provider value={model}><ClockContext.Provider value={clock}>{children}</ClockContext.Provider></RoomContext.Provider>;
+    return (
+        <RoomContext.Provider value={model}>
+            <ClockContext.Provider value={clock}>
+                {children}
+            </ClockContext.Provider>
+        </RoomContext.Provider>
+    );
 }
 
 /** Access room discovery state under RoomStateProvider. */

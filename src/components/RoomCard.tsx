@@ -32,14 +32,15 @@ const percent = (value: number) => `${((value - DAY_START) / DAY_LENGTH) * 100}%
 
 const inDay = (value: number) => value >= DAY_START && value < DAY_START + DAY_LENGTH;
 
-export function RoomCard({ name, classes, time, duration, nowTime }: {
+export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fasilkom" }: {
     name: string;
     classes: ClassSlot[] | undefined;
     time: string;
     duration: number;
     nowTime?: string;
+    faculty?: string;
 }) {
-    const room = roomInfo(name);
+    const room = roomInfo(name, faculty);
     const slots = classes ? freeSlots(classes) : [];
     const rows = classes ? scheduleRows(classes) : [];
     const target = minutes(time);
@@ -49,7 +50,7 @@ export function RoomCard({ name, classes, time, duration, nowTime }: {
     const tooltipId = `room-${room.code.replace(/\W/g, "")}-${name.length}`;
 
     return (
-        <article className="border border-[#90a078] bg-[#142e22]/90 p-5 shadow-[4px_4px_0_#101e16]">
+        <article className={`border p-5 shadow-[4px_4px_0_#101e16] ${!known ? "border-[#525c55] bg-[#1a221e]/85 opacity-75" : "border-[#90a078] bg-[#142e22]/90"}`}>
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <h2 className="group relative font-pixel text-4xl leading-none text-[#fff5bb]">
                     <button type="button" aria-describedby={tooltipId} className="cursor-help underline decoration-dotted decoration-2 underline-offset-4 focus-visible:outline-offset-2">
@@ -59,9 +60,16 @@ export function RoomCard({ name, classes, time, duration, nowTime }: {
                         {name}
                     </span>
                 </h2>
-                <span className={`border px-2 py-1 font-pixel text-xl leading-none ${available ? "border-[#b4d08d] bg-[#a5be76] text-[#152515]" : "border-[#a4a487] text-[#dedbb5]"}`}>
-                    {!known ? "UNKNOWN" : available ? "VACANT" : "UNAVAILABLE"}
-                </span>
+                <div className="flex items-center gap-2">
+                    {room.isVirtual && (
+                        <span className="border border-[#7e9ba6] bg-[#223942] px-2 py-1 font-pixel text-lg leading-none text-[#bde0ee]">
+                            ONLINE
+                        </span>
+                    )}
+                    <span className={`border px-2 py-1 font-pixel text-xl leading-none ${available ? "border-[#b4d08d] bg-[#a5be76] text-[#152515]" : !known ? "border-[#68706b] bg-[#2a302d] text-[#9ba39e]" : "border-[#a4a487] text-[#dedbb5]"}`}>
+                        {!known ? "NO DATA" : available ? "VACANT" : "UNAVAILABLE"}
+                    </span>
+                </div>
             </div>
             <p className="mt-3 text-lg">
                 {room.building}

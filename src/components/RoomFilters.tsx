@@ -1,35 +1,82 @@
 import { useState } from "react";
-import { useRoomState, useClock } from "../state/RoomState";
-import { jakartaNow } from "../../shared/rooms";
+import { FACULTIES, jakartaNow } from "../../shared/rooms";
+import { useClock, useRoomState } from "../state/RoomState";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 import { Select } from "./ui/Select";
 
 export function RoomFilters() {
-    const { query, setQuery, building, setBuilding, type, setType, time, setTime, duration, setDuration, vacantOnly, setVacantOnly, setDay } = useRoomState();
+    const {
+        faculty,
+        setFaculty,
+        query,
+        setQuery,
+        building,
+        setBuilding,
+        type,
+        setType,
+        time,
+        setTime,
+        duration,
+        setDuration,
+        vacantOnly,
+        setVacantOnly,
+        includeVirtual,
+        setIncludeVirtual,
+        showUnavailable,
+        setShowUnavailable,
+        setDay,
+    } = useRoomState();
+
     const [advanced, setAdvanced] = useState(false);
     const now = jakartaNow(useClock());
 
     return (
         <section aria-label="Find a room" className="mt-6">
+            {/* Search and filter controls */}
             <div className="flex items-stretch gap-2 sm:gap-3">
                 <label htmlFor="room-query" className="min-w-0 flex-1">
                     <span className="sr-only">Search rooms</span>
-                    <Input id="room-query" placeholder="Search room code or name" value={query} onChange={event => setQuery(event.target.value)} />
+                    <Input
+                        id="room-query"
+                        placeholder="Search room code or name"
+                        value={query}
+                        onChange={event => setQuery(event.target.value)}
+                    />
                 </label>
-                <Button type="button" aria-expanded={advanced} aria-controls="advanced-filters" onClick={() => setAdvanced(!advanced)}>
+                <Button
+                    type="button"
+                    aria-expanded={advanced}
+                    aria-controls="advanced-filters"
+                    onClick={() => setAdvanced(!advanced)}
+                >
                     <span className="sm:hidden">Filters</span>
                     <span className="hidden sm:inline">Advanced filters</span>
                     {" "}
                     {advanced ? "-" : "+"}
                 </Button>
             </div>
+
             {advanced && (
                 <div
                     id="advanced-filters"
                     className="border-2 border-[#a9b68b] border-t-0 bg-[#183427]/95 p-4 shadow-[6px_6px_0_#17251b] sm:p-5"
                 >
                     <div className="grid gap-4 text-[#d1dbb8] sm:grid-cols-2 lg:grid-cols-4">
+                        <label htmlFor="faculty-select" className="sm:col-span-2 lg:col-span-2">
+                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">FACULTY</span>
+                            <Select
+                                id="faculty-select"
+                                value={faculty}
+                                onChange={event => setFaculty(event.target.value)}
+                            >
+                                {FACULTIES.map(f => (
+                                    <option key={f.id} value={f.id}>
+                                        {f.name}
+                                    </option>
+                                ))}
+                            </Select>
+                        </label>
                         <label htmlFor="room-time">
                             <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">TIME - WIB</span>
                             <Input
@@ -75,7 +122,6 @@ export function RoomFilters() {
                         <div className="flex flex-wrap items-center gap-4 sm:col-span-2 lg:col-span-4">
                             <Button
                                 type="button"
-
                                 onClick={() => {
                                     const current = jakartaNow();
 
@@ -97,11 +143,28 @@ export function RoomFilters() {
                                 />
                                 Vacant only
                             </label>
+                            <label className="flex min-h-11 items-center gap-2 text-lg text-[#edf0d4]">
+                                <input
+                                    type="checkbox"
+                                    className="h-5 w-5 accent-[#c0d494]"
+                                    checked={showUnavailable}
+                                    onChange={event => setShowUnavailable(event.target.checked)}
+                                />
+                                Show unscheduled / no data
+                            </label>
+                            <label className="flex min-h-11 items-center gap-2 text-lg text-[#edf0d4]">
+                                <input
+                                    type="checkbox"
+                                    className="h-5 w-5 accent-[#c0d494]"
+                                    checked={includeVirtual}
+                                    onChange={event => setIncludeVirtual(event.target.checked)}
+                                />
+                                Include online / virtual rooms
+                            </label>
                         </div>
                     </div>
                 </div>
             )}
         </section>
-
     );
 }

@@ -3,6 +3,7 @@ import { PageFooter } from "./components/PageFooter";
 import { RoomFilters } from "./components/RoomFilters";
 import { WeekNavigation } from "./components/WeekNavigation";
 import { RoomResults } from "./components/RoomResults";
+import { FacultyNotice } from "./components/FacultyNotice";
 
 export default function App() {
     return (
@@ -16,6 +17,7 @@ export default function App() {
                 <RoomResults />
             </main>
 
+            <FacultyNotice />
             <PageFooter />
         </div>
     );

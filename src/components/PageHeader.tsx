@@ -1,13 +1,19 @@
-import { useClock } from "../state/RoomState";
+import { useClock, useRoomState } from "../state/RoomState";
 
 export function PageHeader() {
     const clock = useClock();
+    const { currentFaculty } = useRoomState();
+
     return (
         <>
             {/* Sticky Dynamic-Island-style top navigation bar */}
             <div className="sticky top-3 z-30 mb-6">
                 <header className="mx-auto flex items-center justify-between gap-1 border-2 border-[#a9b68b] bg-[#142e22]/95 px-2 py-2.5 font-pixel text-base sm:gap-3 sm:text-xl text-[#d1dbb8] shadow-[4px_4px_0_#101e16] sm:px-6">
-                    <span className="shrink-0 tracking-wide text-[#fff5bb]">FASILKOM UI</span>
+                    <span className="shrink-0 tracking-wide text-[#fff5bb]">
+                        {currentFaculty.shortName}
+                        {" "}
+                        UI
+                    </span>
                     <div role="timer" aria-label="Current time" className="flex items-baseline gap-1 px-0 text-center sm:gap-1.5 sm:px-2 text-[#fff1b0]">
                         <span className="font-pixel text-xl sm:text-3xl tabular-nums leading-none">
                             {clock.toLocaleTimeString("en-GB", {
@@ -25,7 +31,6 @@ export function PageHeader() {
             <section aria-label="Title" className="border-2 border-[#a9b68b] bg-[#183427]/90 px-5 py-7 shadow-[6px_6px_0_#17251b] sm:px-8">
                 <h1 className="text-6xl font-bold tracking-tight text-[#fff1b0] sm:text-8xl">Backrooms</h1>
             </section>
-
         </>
     );
 }

@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import staticFiles from "@fastify/static";
 import Fastify from "fastify";
+import { FACULTIES } from "../shared/rooms.js";
 import type { createStore } from "./store.js";
 
 export async function createApp(store: ReturnType<typeof createStore>, staticRoot = resolve("dist")) {
@@ -15,13 +16,28 @@ export async function createApp(store: ReturnType<typeof createStore>, staticRoo
 
     app.get("/api/health", async () => ({ ok: true }));
 
-    app.get("/api/rooms/schedule", async (_request, reply) => {
+    app.get("/api/faculties", async () => ({
+        faculties: FACULTIES.map(f => ({
+            id: f.id,
+            name: f.name,
+            shortName: f.shortName,
+            openPolicy: f.openPolicy,
+        })),
+    }));
+
+    app.get<{
+        Querystring: { faculty?: string };
+    }>("/api/rooms/schedule", async (request, reply) => {
         try {
-            const data = await store.get();
+            const facultyParam = request.query?.faculty || "fasilkom";
+            const data = await store.get(facultyParam);
+
             reply.header("Cache-Control", "public, max-age=60");
             return data;
         }
-        catch { return reply.code(503).send({ error: "The room schedule is temporarily unavailable. Please try again later." }); }
+        catch {
+            return reply.code(503).send({ error: "The room schedule is temporarily unavailable. Please try again later." });
+        }
     });
 
     if (existsSync(staticRoot)) await app.register(staticFiles, { root: staticRoot });

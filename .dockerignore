@@ -4,3 +4,5 @@ dist-server
 data
 .git
 *.log
+AUTH_DATA.env
+.env.*

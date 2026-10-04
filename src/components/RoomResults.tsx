@@ -1,27 +1,30 @@
 import { jakartaNow } from "../../shared/rooms";
-import { useClock } from "../state/RoomState";
-import { useRoomState } from "../state/RoomState";
+import { useClock, useRoomState } from "../state/RoomState";
 import { RoomCard } from "./RoomCard";
 import { Button } from "./ui/Button";
 
 export function RoomResults() {
-    const { rooms, day, time, duration, data, loading, error, load } = useRoomState();
+    const { rooms, day, time, duration, data, loading, error, load, hasScheduleForDay, currentFaculty } = useRoomState();
     const now = jakartaNow(useClock());
     const nowTime = now.day === day && now.time >= "08:00" && now.time < "18:00" ? now.time : undefined;
+    const hasData = hasScheduleForDay(day);
 
     return (
         <section id="rooms" aria-label="Room results" className="mt-7">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[#c0c59a] bg-[#193326]/95 px-4 py-3">
-                <h2 className="font-pixel text-3xl">{loading && !data ? "SEARCHING..." : `${rooms.length} ROOMS FOUND`}</h2>
+                <h2 className="font-pixel text-3xl">
+                    {loading && !data ? "SEARCHING..." : `${rooms.length} ROOMS FOUND`}
+                </h2>
                 <span className="font-pixel text-xl uppercase">
+                    {currentFaculty.shortName}
+                    {" "}
+                    /
                     {day}
                     {" "}
                     /
-                    {" "}
                     {time}
                     {" "}
                     WIB /
-                    {" "}
                     {duration}
                     {" "}
                     MIN
@@ -34,9 +37,28 @@ export function RoomResults() {
                     <Button className="ml-3" onClick={() => void load()}>Retry</Button>
                 </div>
             )}
-            {data && <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{rooms.map(name => <RoomCard key={name} name={name} classes={day === "sabtu" ? undefined : data.schedule[day][name]} time={time} duration={duration} nowTime={nowTime} />)}</div>}
-            {data && !rooms.length && <p className="border border-[#a9b68b] bg-[#183427]/95 p-8 text-xl">{day === "sabtu" ? "Saturday has no supplied room schedule. Availability is unknown." : "No rooms match. Try another time, a shorter minimum vacancy, or turn off vacant-only filtering."}</p>}
+            {data && (
+                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                    {rooms.map(name => (
+                        <RoomCard
+                            key={name}
+                            name={name}
+                            classes={!hasData ? undefined : data.schedule[day][name]}
+                            time={time}
+                            duration={duration}
+                            nowTime={nowTime}
+                            faculty={currentFaculty.id}
+                        />
+                    ))}
+                </div>
+            )}
+            {data && !rooms.length && (
+                <p className="border border-[#a9b68b] bg-[#183427]/95 p-8 text-xl">
+                    {!hasData
+                        ? `${day.toUpperCase()} has no supplied room schedule for ${currentFaculty.shortName}. Availability is unknown.`
+                        : "No rooms match. Try another time, a shorter minimum vacancy, or turn off vacant-only filtering."}
+                </p>
+            )}
         </section>
-
     );
 }
