@@ -94,6 +94,33 @@ export default [
                     next: "*",
                 },
             ],
+
+            "@stylistic/list-style": [
+                "error",
+                {
+                    overrides: {
+                        // JavaScript objects
+                        ObjectExpression: {
+                            singleLine: { maxItems: 1 },
+                        },
+
+                        // TypeScript interfaces
+                        TSInterfaceBody: {
+                            singleLine: { maxItems: 1 },
+                        },
+
+                        // TypeScript type literals
+                        TSTypeLiteral: {
+                            singleLine: { maxItems: 1 },
+                        },
+
+                        // Optional: TypeScript enums
+                        TSEnumBody: {
+                            singleLine: { maxItems: 1 },
+                        },
+                    },
+                },
+            ],
         },
     },
 ];
