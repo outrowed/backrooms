@@ -11,7 +11,6 @@ function useRoomModel() {
     const [query, setQuery] = useState("");
     const [building, setBuilding] = useState("all");
     const [type, setType] = useState("all");
-    const [vacantOnly, setVacantOnly] = useState(true);
     const [includeVirtual, setIncludeVirtual] = useState(false);
     const [showUnavailable, setShowUnavailable] = useState(false);
     const [data, setData] = useState<Snapshot>();
@@ -72,17 +71,35 @@ function useRoomModel() {
         return Object.keys(data.schedule[selected]).length > 0;
     };
 
-    const rooms = candidates.filter((name) => {
-        const hasDayData = Boolean(data?.schedule?.[day] && name in data.schedule[day]);
+    const rooms = candidates
+        .filter((name) => {
+            const hasDayData = Boolean(data?.schedule?.[day] && name in data.schedule[day]);
 
-        if (!hasDayData) {
-            // Day has no definite schedule data for this room (e.g. Saturday or unscheduled day)
-            // Hidden by default; included only when user toggles showUnavailable and vacantOnly is off
-            return showUnavailable && !vacantOnly;
-        }
+            if (!hasDayData) {
+                // Day has no definite schedule data for this room (e.g. Saturday or unscheduled day)
+                // Hidden by default; included only when user toggles showUnavailable
+                return showUnavailable;
+            }
 
-        return !vacantOnly || isVacant(name, day);
-    });
+            return true;
+        })
+        .sort((a, b) => {
+            const aHasData = Boolean(data?.schedule?.[day] && a in data.schedule[day]);
+            const bHasData = Boolean(data?.schedule?.[day] && b in data.schedule[day]);
+
+            // Rank: 2 = Vacant (definite), 1 = Unavailable/Occupied (definite), 0 = No data / unscheduled
+            const aRank = !aHasData ? 0 : isVacant(a, day) ? 2 : 1;
+            const bRank = !bHasData ? 0 : isVacant(b, day) ? 2 : 1;
+
+            if (aRank !== bRank) {
+                return bRank - aRank;
+            }
+
+            return a.localeCompare(b, undefined, {
+                numeric: true,
+                sensitivity: "base",
+            });
+        });
 
     return {
         faculty,
@@ -100,8 +117,6 @@ function useRoomModel() {
         setBuilding,
         type,
         setType,
-        vacantOnly,
-        setVacantOnly,
         includeVirtual,
         setIncludeVirtual,
         showUnavailable,

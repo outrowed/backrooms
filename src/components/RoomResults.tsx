@@ -56,7 +56,7 @@ export function RoomResults() {
                 <p className="border border-[#a9b68b] bg-[#183427]/95 p-8 text-xl">
                     {!hasData
                         ? `${day.toUpperCase()} has no supplied room schedule for ${currentFaculty.shortName}. Availability is unknown.`
-                        : "No rooms match. Try another time, a shorter minimum vacancy, or turn off vacant-only filtering."}
+                        : "No rooms match the search criteria. Try another time or a shorter minimum vacancy."}
                 </p>
             )}
         </section>

@@ -19,8 +19,6 @@ export function RoomFilters() {
         setTime,
         duration,
         setDuration,
-        vacantOnly,
-        setVacantOnly,
         includeVirtual,
         setIncludeVirtual,
         showUnavailable,
@@ -134,15 +132,6 @@ export function RoomFilters() {
                             >
                                 Use current time
                             </Button>
-                            <label className="flex min-h-11 items-center gap-2 text-lg text-[#edf0d4]">
-                                <input
-                                    type="checkbox"
-                                    className="h-5 w-5 accent-[#c0d494]"
-                                    checked={vacantOnly}
-                                    onChange={event => setVacantOnly(event.target.checked)}
-                                />
-                                Vacant only
-                            </label>
                             <label className="flex min-h-11 items-center gap-2 text-lg text-[#edf0d4]">
                                 <input
                                     type="checkbox"
