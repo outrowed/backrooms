@@ -1,0 +1,50 @@
+@layer base {
+    /* Fluorescent light flicker overlay - sits behind content, above wallpaper */
+    #flicker-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        /* A dark veil that is normally invisible and briefly dips like a failing fluorescent tube. */
+        background: rgb(20 24 6);
+        opacity: 0;
+        animation: flicker 11s linear infinite;
+    }
+
+    @keyframes flicker {
+        0%,
+        100% {
+            opacity: 0;
+        }
+        31% {
+            opacity: 0;
+        }
+        31.4% {
+            opacity: 0.12;
+        }
+        31.8% {
+            opacity: 0.03;
+        }
+        32.3% {
+            opacity: 0.15;
+        }
+        33% {
+            opacity: 0;
+        }
+        72% {
+            opacity: 0;
+        }
+        72.3% {
+            opacity: 0.08;
+        }
+        72.7% {
+            opacity: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        #flicker-overlay {
+            display: none;
+        }
+    }
+}

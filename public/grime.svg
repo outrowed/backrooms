@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640">
+    <title>Decorative wallpaper texture</title>
+    <filter id="stain" x="0" y="0" width="100%" height="100%">
+        <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.006"
+            numOctaves="5"
+            seed="11"
+            stitchTiles="stitch"
+        />
+        <!-- Gentle, faint damp stain instead of heavy dark dirt blotches -->
+        <feColorMatrix
+            values="0 0 0 0 0.38  0 0 0 0 0.40  0 0 0 0 0.20  0.7 0 0 0 -0.22"
+        />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#stain)" />
+</svg>

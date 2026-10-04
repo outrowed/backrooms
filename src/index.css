@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: "VT323";
+    src: url("/VT323-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+
+@theme {
+    --font-pixel: "VT323", monospace;
+}
+
+@layer base {
+    body {
+        margin: 0;
+        min-width: 320px;
+        min-height: 100vh;
+        color: #edf0d4;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        /* Shading layers sit on top of the unmodified CC0 chevron wallpaper (last layer). */
+        background-color: #9c9a58;
+        background-image:
+            url("/grain.svg"), url("/grime.svg"),
+            radial-gradient(
+                ellipse 70% 45% at 50% 0%,
+                rgb(255 248 190 / 0.45),
+                transparent 70%
+            ),
+            radial-gradient(
+                ellipse at 50% 45%,
+                transparent 35%,
+                rgb(38 44 12 / 0.6) 100%
+            ),
+            linear-gradient(#bdb866, #a9a556), url("/backrooms-chevron.png");
+        background-size:
+            240px 240px,
+            640px 640px,
+            100% 100%,
+            100% 100%,
+            100% 100%,
+            150px auto;
+        background-repeat:
+            repeat, repeat, no-repeat, no-repeat, no-repeat, repeat;
+        background-attachment: scroll, scroll, fixed, fixed, fixed, scroll;
+        background-blend-mode:
+            overlay, multiply, soft-light, multiply, multiply, normal;
+    }
+    * {
+        border-radius: 0;
+    }
+    :focus-visible {
+        outline: 3px solid #fff3b0;
+        outline-offset: 3px;
+    }
+    button,
+    select,
+    summary {
+        cursor: pointer;
+    }
+    button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+    ::selection {
+        background: #d2df9c;
+        color: #132719;
+    }
+
+    /* Ensure content sits above the flicker overlay */
+    #root {
+        position: relative;
+        z-index: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            /* biome-ignore lint/complexity/noImportantStyles: Reduced-motion preferences must override component animation. */
+            animation: none !important;
+            /* biome-ignore lint/complexity/noImportantStyles: Reduced-motion preferences must override component transitions. */
+            transition: none !important;
+            /* biome-ignore lint/complexity/noImportantStyles: Reduced-motion preferences must override smooth scrolling. */
+            scroll-behavior: auto !important;
+        }
+    }
+}
