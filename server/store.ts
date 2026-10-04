@@ -49,13 +49,20 @@ export function createStore(path: string, fetcher = fetchSchedule, now = Date.no
 
         const schedule = Object.fromEntries(days.map(day => [day, {}])) as Schedule;
 
-        for (const row of db.prepare("SELECT name, schedule FROM rooms ORDER BY name").all() as { name: string; schedule: string }[]) {
+        for (const row of db.prepare("SELECT name, schedule FROM rooms ORDER BY name").all() as {
+            name: string;
+            schedule: string;
+        }[]) {
             const perDay = JSON.parse(row.schedule);
 
             for (const day of days) if (perDay[day] !== undefined) schedule[day][row.name] = perDay[day];
         }
 
-        return { schedule, fetchedAt: sync.fetched_at, stale: now() - sync.fetched_at >= TTL };
+        return {
+            schedule,
+            fetchedAt: sync.fetched_at,
+            stale: now() - sync.fetched_at >= TTL,
+        };
     }
 
     async function refresh(): Promise<Snapshot> {
@@ -119,5 +126,9 @@ export function createStore(path: string, fetcher = fetchSchedule, now = Date.no
         return refresh();
     }
 
-    return { get, refresh, close: () => db.close() };
+    return {
+        get,
+        refresh,
+        close: () => db.close(),
+    };
 }

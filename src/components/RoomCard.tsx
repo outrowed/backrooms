@@ -12,7 +12,11 @@ interface Row {
 
 /** Merge vacant gaps and classes into one chronological 08:00 - 18:00 schedule */
 function scheduleRows(classes: ClassSlot[]): Row[] {
-    const vacant = freeSlots(classes).map(slot => ({ ...slot, label: "Vacant", vacant: true }));
+    const vacant = freeSlots(classes).map(slot => ({
+        ...slot,
+        label: "Vacant",
+        vacant: true,
+    }));
     const booked = classes
         .map(slot => ({
             start: Math.max(DAY_START, minutes(slot.start)),

@@ -49,7 +49,29 @@ function useRoomModel() {
 
     const rooms = day === "sabtu" ? [] : candidates.filter(name => !vacantOnly || isVacant(name, day));
 
-    return { day, setDay, time, setTime, duration, setDuration, query, setQuery, building, setBuilding, type, setType, vacantOnly, setVacantOnly, data, loading, error, load, candidates, isVacant, rooms };
+    return {
+        day,
+        setDay,
+        time,
+        setTime,
+        duration,
+        setDuration,
+        query,
+        setQuery,
+        building,
+        setBuilding,
+        type,
+        setType,
+        vacantOnly,
+        setVacantOnly,
+        data,
+        loading,
+        error,
+        load,
+        candidates,
+        isVacant,
+        rooms,
+    };
 }
 
 const RoomContext = createContext<ReturnType<typeof useRoomModel> | undefined>(undefined);

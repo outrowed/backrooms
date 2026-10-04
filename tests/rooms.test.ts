@@ -3,11 +3,19 @@ import { createApp } from "../server/app";
 import { createStore, TTL, validateDay } from "../server/store";
 import { days, freeSlots, hasVacancy, jakartaNow, type Schedule } from "../shared/rooms";
 
-const schedule = Object.fromEntries(days.map(day => [day, { "A1.09 (Ged Baru)": [{ start: "10:00", end: "11:40", class: "Example" }] }])) as unknown as Schedule;
+const schedule = Object.fromEntries(days.map(day => [day, { "A1.09 (Ged Baru)": [{
+    start: "10:00",
+    end: "11:40",
+    class: "Example",
+}] }])) as unknown as Schedule;
 
 describe("availability boundaries", () => {
     it("uses the same minimum vacancy boundary for counters and filtering", () => {
-        const classes = [{ start: "09:00", end: "10:00", class: "A" }];
+        const classes = [{
+            start: "09:00",
+            end: "10:00",
+            class: "A",
+        }];
         expect(hasVacancy(classes, "08:30", 30)).toBe(true);
         expect(hasVacancy(classes, "08:30", 31)).toBe(false);
         expect(hasVacancy(undefined, "08:30", 30)).toBe(false);
@@ -15,15 +23,44 @@ describe("availability boundaries", () => {
         expect(hasVacancy([], "08:00", 0)).toBe(false);
     });
     it("clips classes and merges overlaps without phantom availability", () => {
-        expect(freeSlots([{ start: "07:00", end: "09:00", class: "A" }, { start: "08:30", end: "10:00", class: "B" }, { start: "17:00", end: "20:00", class: "C" }])).toEqual([{ start: 600, end: 1020 }]);
-        expect(freeSlots([{ start: "19:00", end: "20:00", class: "A" }])).toEqual([{ start: 480, end: 1080 }]);
+        expect(freeSlots([{
+            start: "07:00",
+            end: "09:00",
+            class: "A",
+        }, {
+            start: "08:30",
+            end: "10:00",
+            class: "B",
+        }, {
+            start: "17:00",
+            end: "20:00",
+            class: "C",
+        }])).toEqual([{
+            start: 600,
+            end: 1020,
+        }]);
+        expect(freeSlots([{
+            start: "19:00",
+            end: "20:00",
+            class: "A",
+        }])).toEqual([{
+            start: 480,
+            end: 1080,
+        }]);
     });
     it("uses Jakarta day boundaries and marks weekends unknown", () => {
-        expect(jakartaNow(new Date("2026-10-04T17:30:00Z"))).toEqual({ day: "senin", time: "00:30" });
+        expect(jakartaNow(new Date("2026-10-04T17:30:00Z"))).toEqual({
+            day: "senin",
+            time: "00:30",
+        });
         expect(jakartaNow(new Date("2026-10-03T14:00:00Z")).day).toBeUndefined();
     });
     it("rejects invalid upstream times", () => {
-        expect(() => validateDay({ Room: [{ start: "25:00", end: "26:00", class: "A" }] })).toThrow();
+        expect(() => validateDay({ Room: [{
+            start: "25:00",
+            end: "26:00",
+            class: "A",
+        }] })).toThrow();
         expect(() => validateDay({})).toThrow();
     });
 });
@@ -63,7 +100,10 @@ describe("public SQLite cache", () => {
         const response = await app.inject("/api/rooms/schedule");
         expect(response.statusCode).toBe(200);
         expect(response.json().schedule).toEqual(schedule);
-        expect((await app.inject({ method: "POST", url: "/api/rooms/schedule" })).statusCode).toBe(404);
+        expect((await app.inject({
+            method: "POST",
+            url: "/api/rooms/schedule",
+        })).statusCode).toBe(404);
         await app.close();
         store.close();
         const failed = createStore(":memory:", async () => { throw new Error("offline"); });

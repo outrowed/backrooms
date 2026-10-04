@@ -95,31 +95,31 @@ export default [
                 },
             ],
 
-            "@stylistic/list-style": [
+            // Keep objects and TypeScript member lists with 2+ items multiline.
+            "@stylistic/object-curly-newline": [
                 "error",
                 {
-                    overrides: {
-                        // JavaScript objects
-                        ObjectExpression: {
-                            singleLine: { maxItems: 1 },
-                        },
-
-                        // TypeScript interfaces
-                        TSInterfaceBody: {
-                            singleLine: { maxItems: 1 },
-                        },
-
-                        // TypeScript type literals
-                        TSTypeLiteral: {
-                            singleLine: { maxItems: 1 },
-                        },
-
-                        // Optional: TypeScript enums
-                        TSEnumBody: {
-                            singleLine: { maxItems: 1 },
-                        },
+                    ObjectExpression: {
+                        minProperties: 2,
+                        consistent: true,
+                    },
+                    TSInterfaceBody: {
+                        minProperties: 2,
+                        consistent: true,
+                    },
+                    TSTypeLiteral: {
+                        minProperties: 2,
+                        consistent: true,
+                    },
+                    TSEnumBody: {
+                        minProperties: 2,
+                        consistent: true,
                     },
                 },
+            ],
+            "@stylistic/object-property-newline": [
+                "error",
+                { allowAllPropertiesOnSameLine: false },
             ],
         },
     },

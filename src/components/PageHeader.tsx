@@ -10,7 +10,10 @@ export function PageHeader() {
                     <span className="shrink-0 tracking-wide text-[#fff5bb]">FASILKOM UI</span>
                     <div role="timer" aria-label="Current time" className="flex items-baseline gap-1 px-0 text-center sm:gap-1.5 sm:px-2 text-[#fff1b0]">
                         <span className="font-pixel text-xl sm:text-3xl tabular-nums leading-none">
-                            {clock.toLocaleTimeString("en-GB", { timeZone: "Asia/Jakarta", hourCycle: "h23" })}
+                            {clock.toLocaleTimeString("en-GB", {
+                                timeZone: "Asia/Jakarta",
+                                hourCycle: "h23",
+                            })}
                         </span>
                         <span className="text-xs text-[#c2cea0]">WIB</span>
                     </div>
