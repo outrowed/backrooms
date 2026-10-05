@@ -28,8 +28,12 @@
         "typeLab": "Labs",
         "typeAuditorium": "Auditoriums",
         "useCurrentTime": "Use current time",
+        "setTimeToNow": "Set time to now",
         "showUnscheduled": "Show unscheduled / no data",
-        "includeVirtual": "Include online / virtual rooms"
+        "includeVirtual": "Include online / virtual rooms",
+        "sortBy": "SORT BY",
+        "sortByName": "Room name (A - Z)",
+        "sortByVacant": "Vacancy status (vacant first)"
     },
     "weekdays": {
         "senin": "Monday",
@@ -50,6 +54,8 @@
     "roomCard": {
         "onlineBadge": "ONLINE",
         "vacantBadge": "VACANT",
+        "vacantBadgeWithDuration": "VACANT ({{min}} MIN)",
+        "vacantScheduleSlot": "VACANT ({{min}} MIN)",
         "unavailableBadge": "UNAVAILABLE",
         "noDataBadge": "NO DATA",
         "unknownBadge": "UNKNOWN",
@@ -58,7 +64,9 @@
         "noScheduleDay": "No schedule supplied for this day.",
         "viewSchedule": "View schedule",
         "nowMarker": "< NOW",
-        "ariaTimeline": "Availability from 08:00 to 18:00"
+        "ariaTimeline": "Availability from 08:00 to 18:00",
+        "vacantSlot": "Vacant - No class scheduled",
+        "seekTimeline": "Click or drag to change time (08:00 to 18:00)"
     },
     "notice": {
         "title": "ROOM USE NOTICE: {{faculty}}",

@@ -16,6 +16,8 @@ export function RoomFilters() {
         setBuilding,
         type,
         setType,
+        sortBy,
+        setSortBy,
         time,
         setTime,
         duration,
@@ -117,6 +119,13 @@ export function RoomFilters() {
                                 <option value="classroom">{t("filters.typeClassroom")}</option>
                                 <option value="lab">{t("filters.typeLab")}</option>
                                 <option value="auditorium">{t("filters.typeAuditorium")}</option>
+                            </Select>
+                        </label>
+                        <label htmlFor="room-sort">
+                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.sortBy")}</span>
+                            <Select id="room-sort" value={sortBy} onChange={event => setSortBy(event.target.value as "name" | "vacant")}>
+                                <option value="name">{t("filters.sortByName")}</option>
+                                <option value="vacant">{t("filters.sortByVacant")}</option>
                             </Select>
                         </label>
                         <div className="flex flex-wrap items-center gap-4 sm:col-span-2 lg:col-span-4">

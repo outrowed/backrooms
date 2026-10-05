@@ -1,10 +1,20 @@
 import { useTranslation } from "react-i18next";
+import { jakartaNow } from "../../shared/rooms";
 import { useClock, useRoomState } from "../state/RoomState";
 
 export function PageHeader() {
     const clock = useClock();
-    const { currentFaculty } = useRoomState();
+    const { currentFaculty, setDay, setTime } = useRoomState();
     const { t } = useTranslation();
+
+    const handleClockClick = () => {
+        const current = jakartaNow(clock);
+
+        if (current.day) {
+            setDay(current.day);
+            setTime(current.time);
+        }
+    };
 
     return (
         <>
@@ -16,15 +26,21 @@ export function PageHeader() {
                         {" "}
                         UI
                     </span>
-                    <div role="timer" aria-label="Current time" className="flex items-baseline gap-1 px-0 text-center sm:gap-1.5 sm:px-2 text-[#fff1b0]">
-                        <span className="font-pixel text-xl sm:text-3xl tabular-nums leading-none">
+                    <button
+                        type="button"
+                        onClick={handleClockClick}
+                        title={t("filters.setTimeToNow")}
+                        aria-label={t("filters.setTimeToNow")}
+                        className="group flex cursor-pointer items-baseline gap-1 px-1 py-0.5 text-center text-[#fff1b0] transition-colors hover:text-[#ffffff] focus-visible:outline-2 focus-visible:outline-[#fff5bb] sm:gap-1.5 sm:px-2"
+                    >
+                        <span className="font-pixel text-xl tabular-nums leading-none group-hover:underline group-hover:decoration-dotted sm:text-3xl">
                             {clock.toLocaleTimeString("en-GB", {
                                 timeZone: "Asia/Jakarta",
                                 hourCycle: "h23",
                             })}
                         </span>
-                        <span className="text-xs text-[#c2cea0]">{t("common.wib")}</span>
-                    </div>
+                        <span className="text-xs text-[#c2cea0] group-hover:text-[#edf0d4]">{t("common.wib")}</span>
+                    </button>
                     <a className="shrink-0 underline decoration-1 underline-offset-4 hover:text-[#fff5bb]" href="https://sceletracker.taruna.me">
                         {t("header.trackerLink")}
                     </a>

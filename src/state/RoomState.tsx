@@ -13,6 +13,7 @@ function useRoomModel() {
     const [type, setType] = useState("all");
     const [includeVirtual, setIncludeVirtual] = useState(false);
     const [showUnavailable, setShowUnavailable] = useState(false);
+    const [sortBy, setSortBy] = useState<"name" | "vacant">("name");
     const [data, setData] = useState<Snapshot>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -84,15 +85,17 @@ function useRoomModel() {
             return true;
         })
         .sort((a, b) => {
-            const aHasData = Boolean(data?.schedule?.[day] && a in data.schedule[day]);
-            const bHasData = Boolean(data?.schedule?.[day] && b in data.schedule[day]);
+            if (sortBy === "vacant") {
+                const aHasData = Boolean(data?.schedule?.[day] && a in data.schedule[day]);
+                const bHasData = Boolean(data?.schedule?.[day] && b in data.schedule[day]);
 
-            // Rank: 2 = Vacant (definite), 1 = Unavailable/Occupied (definite), 0 = No data / unscheduled
-            const aRank = !aHasData ? 0 : isVacant(a, day) ? 2 : 1;
-            const bRank = !bHasData ? 0 : isVacant(b, day) ? 2 : 1;
+                // Rank: 2 = Vacant (definite), 1 = Unavailable/Occupied (definite), 0 = No data / unscheduled
+                const aRank = !aHasData ? 0 : isVacant(a, day) ? 2 : 1;
+                const bRank = !bHasData ? 0 : isVacant(b, day) ? 2 : 1;
 
-            if (aRank !== bRank) {
-                return bRank - aRank;
+                if (aRank !== bRank) {
+                    return bRank - aRank;
+                }
             }
 
             return a.localeCompare(b, undefined, {
@@ -121,6 +124,8 @@ function useRoomModel() {
         setIncludeVirtual,
         showUnavailable,
         setShowUnavailable,
+        sortBy,
+        setSortBy,
         data,
         loading,
         error,

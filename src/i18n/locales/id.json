@@ -28,8 +28,12 @@
         "typeLab": "Laboratorium",
         "typeAuditorium": "Auditorium",
         "useCurrentTime": "Gunakan waktu sekarang",
+        "setTimeToNow": "Setel waktu ke saat ini",
         "showUnscheduled": "Tampilkan ruangan tanpa jadwal",
-        "includeVirtual": "Sertakan ruangan online / virtual"
+        "includeVirtual": "Sertakan ruangan online / virtual",
+        "sortBy": "URUTKAN",
+        "sortByName": "Nama ruangan (A - Z)",
+        "sortByVacant": "Status ketersediaan (kosong dahulu)"
     },
     "weekdays": {
         "senin": "Senin",
@@ -50,6 +54,8 @@
     "roomCard": {
         "onlineBadge": "ONLINE",
         "vacantBadge": "KOSONG",
+        "vacantBadgeWithDuration": "KOSONG ({{min}} MNT)",
+        "vacantScheduleSlot": "KOSONG ({{min}} MNT)",
         "unavailableBadge": "TERPAKAI",
         "noDataBadge": "TIDAK ADA DATA",
         "unknownBadge": "TIDAK DIKETAHUI",
@@ -58,7 +64,9 @@
         "noScheduleDay": "Tidak ada jadwal untuk hari ini.",
         "viewSchedule": "Lihat jadwal",
         "nowMarker": "< SAAT INI",
-        "ariaTimeline": "Ketersediaan dari 08:00 hingga 18:00"
+        "ariaTimeline": "Ketersediaan dari 08:00 hingga 18:00",
+        "vacantSlot": "Kosong - Tidak ada perkuliahan",
+        "seekTimeline": "Klik atau geser untuk mengubah waktu (08:00 sampai 18:00)"
     },
     "notice": {
         "title": "PEMBERITAHUAN PENGGUNAAN RUANGAN: {{faculty}}",
