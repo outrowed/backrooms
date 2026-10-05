@@ -1,0 +1,80 @@
+{
+    "common": {
+        "skipToRooms": "Skip to rooms",
+        "wib": "WIB",
+        "loading": "SEARCHING...",
+        "retry": "Retry"
+    },
+    "header": {
+        "trackerLink": "SCeLE Tracker >",
+        "title": "Backrooms"
+    },
+    "filters": {
+        "searchPlaceholder": "Search room code or name",
+        "searchSrOnly": "Search rooms",
+        "filtersShort": "Filters",
+        "filtersLong": "Advanced filters",
+        "faculty": "FACULTY",
+        "timeWib": "TIME - WIB",
+        "minVacancy": "MINIMUM VACANCY",
+        "minVacancySub": "Minutes free from the selected time",
+        "building": "BUILDING",
+        "allBuildings": "All buildings",
+        "buildingNew": "Gedung Baru",
+        "buildingOld": "Gedung Lama",
+        "roomType": "ROOM TYPE",
+        "allTypes": "All types",
+        "typeClassroom": "Classrooms",
+        "typeLab": "Labs",
+        "typeAuditorium": "Auditoriums",
+        "useCurrentTime": "Use current time",
+        "showUnscheduled": "Show unscheduled / no data",
+        "includeVirtual": "Include online / virtual rooms"
+    },
+    "weekdays": {
+        "senin": "Monday",
+        "selasa": "Tuesday",
+        "rabu": "Wednesday",
+        "kamis": "Thursday",
+        "jumat": "Friday",
+        "sabtu": "Saturday",
+        "noData": "No data",
+        "vacantCount": "{{count}} vacant"
+    },
+    "results": {
+        "searching": "SEARCHING...",
+        "roomsFound": "{{count}} ROOMS FOUND",
+        "noRoomsMatch": "No rooms match the search criteria. Try another time or a shorter minimum vacancy.",
+        "noScheduleForDay": "{{day}} has no supplied room schedule for {{faculty}}. Availability is unknown."
+    },
+    "roomCard": {
+        "onlineBadge": "ONLINE",
+        "vacantBadge": "VACANT",
+        "unavailableBadge": "UNAVAILABLE",
+        "noDataBadge": "NO DATA",
+        "unknownBadge": "UNKNOWN",
+        "freeUntil": "Free until {{time}} - {{left}} min left",
+        "noMatchingSlot": "No matching free interval at this time.",
+        "noScheduleDay": "No schedule supplied for this day.",
+        "viewSchedule": "View schedule",
+        "nowMarker": "< NOW",
+        "ariaTimeline": "Availability from 08:00 to 18:00"
+    },
+    "notice": {
+        "title": "ROOM USE NOTICE: {{faculty}}",
+        "fasilkomOpenPolicy": "Vacant rooms in FASILKOM may generally be used for personal study, group discussions (kerkom), or quiet waiting as long as they do not interrupt academic schedules or booked faculty events.",
+        "otherFacultyPolicy": "Room policies outside FASILKOM often differ significantly. Some faculties lock empty classrooms, prohibit unscheduled entry, or require formal room bookings via the deanship or student affairs (kemahasiswaan). Always observe local faculty rules on-site."
+    },
+    "footer": {
+        "disclaimer": "Rooms data are generated and based on the schedule provided by <0>{{source}}</0>. Rooms may be locked, booked separately, or already in use. Check on-site and follow faculty rules. Not a booking service or an official UI website.",
+        "faculty": "Faculty: <0>{{name}}</0>",
+        "source": "Source: <0>{{name}}</0>",
+        "cachedAt": "- Cached {{dateStr}} WIB",
+        "stale": "- STALE - last known schedule",
+        "wallpaperAttribution": "Wallpaper: <0>{{title}}</0> by For underscore dev, <1>{{license}}</1> - <2>{{font}}</2>: <3>{{fontLicense}}</3>",
+        "wallpaperTitle": "\"Stylized Backrooms 'Chevron' Wallpaper\"",
+        "wallpaperLicense": "CC0 via Wikimedia Commons",
+        "fontLicense": "SIL Open Font License",
+        "languageLabel": "Language:"
+    }
+}

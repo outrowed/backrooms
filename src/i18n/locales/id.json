@@ -1,0 +1,80 @@
+{
+    "common": {
+        "skipToRooms": "Lewati ke daftar ruangan",
+        "wib": "WIB",
+        "loading": "MEMUAT...",
+        "retry": "Coba lagi"
+    },
+    "header": {
+        "trackerLink": "SCeLE Tracker >",
+        "title": "Backrooms"
+    },
+    "filters": {
+        "searchPlaceholder": "Cari kode atau nama ruangan",
+        "searchSrOnly": "Cari ruangan",
+        "filtersShort": "Filter",
+        "filtersLong": "Filter lanjutan",
+        "faculty": "FAKULTAS",
+        "timeWib": "WAKTU - WIB",
+        "minVacancy": "DURASI KOSONG MINIMAL",
+        "minVacancySub": "Menit kosong terhitung sejak waktu yang dipilih",
+        "building": "GEDUNG",
+        "allBuildings": "Semua gedung",
+        "buildingNew": "Gedung Baru",
+        "buildingOld": "Gedung Lama",
+        "roomType": "TIPE RUANGAN",
+        "allTypes": "Semua tipe",
+        "typeClassroom": "Ruang Kelas",
+        "typeLab": "Laboratorium",
+        "typeAuditorium": "Auditorium",
+        "useCurrentTime": "Gunakan waktu sekarang",
+        "showUnscheduled": "Tampilkan ruangan tanpa jadwal",
+        "includeVirtual": "Sertakan ruangan online / virtual"
+    },
+    "weekdays": {
+        "senin": "Senin",
+        "selasa": "Selasa",
+        "rabu": "Rabu",
+        "kamis": "Kamis",
+        "jumat": "Jumat",
+        "sabtu": "Sabtu",
+        "noData": "Tidak ada data",
+        "vacantCount": "{{count}} kosong"
+    },
+    "results": {
+        "searching": "MENCARI...",
+        "roomsFound": "{{count}} RUANGAN DITEMUKAN",
+        "noRoomsMatch": "Tidak ada ruangan yang cocok dengan kriteria pencarian. Coba waktu lain atau kurangi durasi minimal.",
+        "noScheduleForDay": "Hari {{day}} tidak memiliki data jadwal perkuliahan untuk {{faculty}}. Ketersediaan tidak diketahui."
+    },
+    "roomCard": {
+        "onlineBadge": "ONLINE",
+        "vacantBadge": "KOSONG",
+        "unavailableBadge": "TERPAKAI",
+        "noDataBadge": "TIDAK ADA DATA",
+        "unknownBadge": "TIDAK DIKETAHUI",
+        "freeUntil": "Kosong hingga {{time}} - sisa {{left}} mnt",
+        "noMatchingSlot": "Tidak ada rentang kosong yang sesuai pada jam ini.",
+        "noScheduleDay": "Tidak ada jadwal untuk hari ini.",
+        "viewSchedule": "Lihat jadwal",
+        "nowMarker": "< SAAT INI",
+        "ariaTimeline": "Ketersediaan dari 08:00 hingga 18:00"
+    },
+    "notice": {
+        "title": "PEMBERITAHUAN PENGGUNAAN RUANGAN: {{faculty}}",
+        "fasilkomOpenPolicy": "Ruangan kosong di FASILKOM pada umumnya boleh digunakan untuk belajar mandiri, kerja kelompok (kerkom), atau menunggu selama tidak mengganggu perkuliahan resmi atau acara yang telah dipesan.",
+        "otherFacultyPolicy": "Kebijakan penggunaan ruangan di luar FASILKOM dapat berbeda secara signifikan. Beberapa fakultas mengunci ruang kelas yang kosong, melarang penggunaan tanpa izin, atau mewajibkan pemesanan resmi melalui dekanat atau kemahasiswaan. Selalu patuhi tata tertib setempat."
+    },
+    "footer": {
+        "disclaimer": "Data ketersediaan ruang dibuat dan didasarkan pada jadwal yang disediakan oleh <0>{{source}}</0>. Ruangan mungkin terkunci, dipesan secara terpisah, atau sedang dipakai. Periksa langsung di lokasi dan ikuti peraturan fakultas. Bukan layanan pemesanan maupun situs web resmi UI.",
+        "faculty": "Fakultas: <0>{{name}}</0>",
+        "source": "Sumber: <0>{{name}}</0>",
+        "cachedAt": "- Tembolok {{dateStr}} WIB",
+        "stale": "- KEDALUWARSA - jadwal terakhir yang diketahui",
+        "wallpaperAttribution": "Wallpaper: <0>{{title}}</0> oleh For underscore dev, <1>{{license}}</1> - <2>{{font}}</2>: <3>{{fontLicense}}</3>",
+        "wallpaperTitle": "\"Stylized Backrooms 'Chevron' Wallpaper\"",
+        "wallpaperLicense": "CC0 via Wikimedia Commons",
+        "fontLicense": "SIL Open Font License",
+        "languageLabel": "Bahasa:"
+    }
+}

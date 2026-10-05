@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { useClock, useRoomState } from "../state/RoomState";
 
 export function PageHeader() {
     const clock = useClock();
     const { currentFaculty } = useRoomState();
+    const { t } = useTranslation();
 
     return (
         <>
@@ -21,9 +23,11 @@ export function PageHeader() {
                                 hourCycle: "h23",
                             })}
                         </span>
-                        <span className="text-xs text-[#c2cea0]">WIB</span>
+                        <span className="text-xs text-[#c2cea0]">{t("common.wib")}</span>
                     </div>
-                    <a className="shrink-0 underline decoration-1 underline-offset-4 hover:text-[#fff5bb]" href="https://sceletracker.taruna.me">SCeLE Tracker &gt;</a>
+                    <a className="shrink-0 underline decoration-1 underline-offset-4 hover:text-[#fff5bb]" href="https://sceletracker.taruna.me">
+                        {t("header.trackerLink")}
+                    </a>
                 </header>
             </div>
 

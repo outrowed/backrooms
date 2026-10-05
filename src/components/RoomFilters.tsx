@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FACULTIES, jakartaNow } from "../../shared/rooms";
+import { useTranslation } from "react-i18next";
 import { useClock, useRoomState } from "../state/RoomState";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
@@ -28,16 +29,17 @@ export function RoomFilters() {
 
     const [advanced, setAdvanced] = useState(false);
     const now = jakartaNow(useClock());
+    const { t } = useTranslation();
 
     return (
-        <section aria-label="Find a room" className="mt-6">
+        <section aria-label={t("filters.searchSrOnly")} className="mt-6">
             {/* Search and filter controls */}
             <div className="flex items-stretch gap-2 sm:gap-3">
                 <label htmlFor="room-query" className="min-w-0 flex-1">
-                    <span className="sr-only">Search rooms</span>
+                    <span className="sr-only">{t("filters.searchSrOnly")}</span>
                     <Input
                         id="room-query"
-                        placeholder="Search room code or name"
+                        placeholder={t("filters.searchPlaceholder")}
                         value={query}
                         onChange={event => setQuery(event.target.value)}
                     />
@@ -48,8 +50,8 @@ export function RoomFilters() {
                     aria-controls="advanced-filters"
                     onClick={() => setAdvanced(!advanced)}
                 >
-                    <span className="sm:hidden">Filters</span>
-                    <span className="hidden sm:inline">Advanced filters</span>
+                    <span className="sm:hidden">{t("filters.filtersShort")}</span>
+                    <span className="hidden sm:inline">{t("filters.filtersLong")}</span>
                     {" "}
                     {advanced ? "-" : "+"}
                 </Button>
@@ -62,7 +64,7 @@ export function RoomFilters() {
                 >
                     <div className="grid gap-4 text-[#d1dbb8] sm:grid-cols-2 lg:grid-cols-4">
                         <label htmlFor="faculty-select" className="sm:col-span-2 lg:col-span-2">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">FACULTY</span>
+                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.faculty")}</span>
                             <Select
                                 id="faculty-select"
                                 value={faculty}
@@ -76,7 +78,7 @@ export function RoomFilters() {
                             </Select>
                         </label>
                         <label htmlFor="room-time">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">TIME - WIB</span>
+                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.timeWib")}</span>
                             <Input
                                 id="room-time"
                                 type="time"
@@ -88,7 +90,7 @@ export function RoomFilters() {
                             />
                         </label>
                         <label htmlFor="room-duration">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">MINIMUM VACANCY</span>
+                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.minVacancy")}</span>
                             <Input
                                 id="room-duration"
                                 type="number"
@@ -98,23 +100,23 @@ export function RoomFilters() {
                                 value={duration}
                                 onChange={event => setDuration(Math.max(1, Math.min(600, Number(event.target.value) || 1)))}
                             />
-                            <span className="mt-1 block text-sm text-[#a8ba7e]">Minutes free from the selected time</span>
+                            <span className="mt-1 block text-sm text-[#a8ba7e]">{t("filters.minVacancySub")}</span>
                         </label>
                         <label htmlFor="room-building">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">BUILDING</span>
+                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.building")}</span>
                             <Select id="room-building" value={building} onChange={event => setBuilding(event.target.value)}>
-                                <option value="all">All buildings</option>
-                                <option>Gedung Baru</option>
-                                <option>Gedung Lama</option>
+                                <option value="all">{t("filters.allBuildings")}</option>
+                                <option value="Gedung Baru">{t("filters.buildingNew")}</option>
+                                <option value="Gedung Lama">{t("filters.buildingOld")}</option>
                             </Select>
                         </label>
                         <label htmlFor="room-type">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">ROOM TYPE</span>
+                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.roomType")}</span>
                             <Select id="room-type" value={type} onChange={event => setType(event.target.value)}>
-                                <option value="all">All types</option>
-                                <option value="classroom">Classrooms</option>
-                                <option value="lab">Labs</option>
-                                <option value="auditorium">Auditoriums</option>
+                                <option value="all">{t("filters.allTypes")}</option>
+                                <option value="classroom">{t("filters.typeClassroom")}</option>
+                                <option value="lab">{t("filters.typeLab")}</option>
+                                <option value="auditorium">{t("filters.typeAuditorium")}</option>
                             </Select>
                         </label>
                         <div className="flex flex-wrap items-center gap-4 sm:col-span-2 lg:col-span-4">
@@ -130,7 +132,7 @@ export function RoomFilters() {
                                 }}
                                 disabled={!now.day}
                             >
-                                Use current time
+                                {t("filters.useCurrentTime")}
                             </Button>
                             <label className="flex min-h-11 items-center gap-2 text-lg text-[#edf0d4]">
                                 <input
@@ -139,7 +141,7 @@ export function RoomFilters() {
                                     checked={showUnavailable}
                                     onChange={event => setShowUnavailable(event.target.checked)}
                                 />
-                                Show unscheduled / no data
+                                {t("filters.showUnscheduled")}
                             </label>
                             <label className="flex min-h-11 items-center gap-2 text-lg text-[#edf0d4]">
                                 <input
@@ -148,7 +150,7 @@ export function RoomFilters() {
                                     checked={includeVirtual}
                                     onChange={event => setIncludeVirtual(event.target.checked)}
                                 />
-                                Include online / virtual rooms
+                                {t("filters.includeVirtual")}
                             </label>
                         </div>
                     </div>

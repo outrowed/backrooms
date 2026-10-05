@@ -1,4 +1,5 @@
 import { type ClassSlot, freeSlots, minutes, roomInfo, timeLabel } from "../../shared/rooms";
+import { useTranslation } from "react-i18next";
 
 const DAY_START = 480;
 const DAY_LENGTH = 600;
@@ -48,6 +49,7 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
     const available = slots.find(slot => slot.start <= target && slot.end >= target + duration);
     const known = classes !== undefined;
     const tooltipId = `room-${room.code.replace(/\W/g, "")}-${name.length}`;
+    const { t } = useTranslation();
 
     return (
         <article className={`border p-5 shadow-[4px_4px_0_#101e16] ${!known ? "border-[#525c55] bg-[#1a221e]/85 opacity-75" : "border-[#90a078] bg-[#142e22]/90"}`}>
@@ -63,11 +65,11 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                 <div className="flex items-center gap-2">
                     {room.isVirtual && (
                         <span className="border border-[#7e9ba6] bg-[#223942] px-2 py-1 font-pixel text-lg leading-none text-[#bde0ee]">
-                            ONLINE
+                            {t("roomCard.onlineBadge")}
                         </span>
                     )}
                     <span className={`border px-2 py-1 font-pixel text-xl leading-none ${available ? "border-[#b4d08d] bg-[#a5be76] text-[#152515]" : !known ? "border-[#68706b] bg-[#2a302d] text-[#9ba39e]" : "border-[#a4a487] text-[#dedbb5]"}`}>
-                        {!known ? "NO DATA" : available ? "VACANT" : "UNAVAILABLE"}
+                        {!known ? t("roomCard.noDataBadge") : available ? t("roomCard.vacantBadge") : t("roomCard.unavailableBadge")}
                     </span>
                 </div>
             </div>
@@ -79,11 +81,18 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                 {room.type}
             </p>
             <p className="mt-3 min-h-6 text-[#fff5bb]">
-                {available ? `Free until ${timeLabel(available.end)} - ${available.end - target} min left` : known ? "No matching free interval at this time." : "No schedule supplied for this day."}
+                {available
+                    ? t("roomCard.freeUntil", {
+                            time: timeLabel(available.end),
+                            left: available.end - target,
+                        })
+                    : known
+                        ? t("roomCard.noMatchingSlot")
+                        : t("roomCard.noScheduleDay")}
             </p>
 
             <div className="relative mt-5">
-                <div role="img" className="flex h-3 border border-[#98aa7d] bg-[#786347]" aria-label="Availability from 08:00 to 18:00">
+                <div role="img" className="flex h-3 border border-[#98aa7d] bg-[#786347]" aria-label={t("roomCard.ariaTimeline")}>
                     {known && Array.from({ length: 60 }, (_, index) => {
                         const start = DAY_START + index * 10;
                         const free = slots.some(slot => slot.start <= start && slot.end >= start + 10);
@@ -101,7 +110,7 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
             </div>
 
             <details className="mt-4 border-t border-[#829473] pt-3">
-                <summary className="font-pixel text-2xl text-[#fff5bb]">View schedule</summary>
+                <summary className="font-pixel text-2xl text-[#fff5bb]">{t("roomCard.viewSchedule")}</summary>
                 {known && (
                     <table className="mt-3 w-full border-collapse text-sm">
                         <tbody>
@@ -110,8 +119,8 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                                 return (
                                     <tr key={`${row.start}-${row.end}-${row.label}`} className={`border-t border-[#829473]/60 ${current ? "bg-[#2c4a33]" : ""} ${row.vacant ? "text-[#c9dca1]" : "text-[#edf0d4]"}`}>
                                         <td className={`py-2 pl-2 ${current ? "border-l-4 border-[#fff5bb]" : "border-l-4 border-transparent"}`}>
-                                            {row.label}
-                                            {current && <span className="ml-2 font-pixel text-base text-[#fff5bb]">&lt; NOW</span>}
+                                            {row.label === "Vacant" ? t("roomCard.vacantBadge") : row.label}
+                                            {current && <span className="ml-2 font-pixel text-base text-[#fff5bb]">{t("roomCard.nowMarker")}</span>}
                                         </td>
                                         <td className="py-2 pr-1 text-right whitespace-nowrap tabular-nums">
                                             {timeLabel(row.start)}

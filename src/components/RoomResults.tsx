@@ -1,4 +1,5 @@
 import { jakartaNow } from "../../shared/rooms";
+import { useTranslation } from "react-i18next";
 import { useClock, useRoomState } from "../state/RoomState";
 import { RoomCard } from "./RoomCard";
 import { Button } from "./ui/Button";
@@ -8,23 +9,29 @@ export function RoomResults() {
     const now = jakartaNow(useClock());
     const nowTime = now.day === day && now.time >= "08:00" && now.time < "18:00" ? now.time : undefined;
     const hasData = hasScheduleForDay(day);
+    const { t } = useTranslation();
 
     return (
         <section id="rooms" aria-label="Room results" className="mt-7">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[#c0c59a] bg-[#193326]/95 px-4 py-3">
                 <h2 className="font-pixel text-3xl">
-                    {loading && !data ? "SEARCHING..." : `${rooms.length} ROOMS FOUND`}
+                    {loading && !data ? t("results.searching") : t("results.roomsFound", { count: rooms.length })}
                 </h2>
                 <span className="font-pixel text-xl uppercase">
                     {currentFaculty.shortName}
                     {" "}
                     /
+                    {" "}
                     {day}
                     {" "}
                     /
+                    {" "}
                     {time}
                     {" "}
-                    WIB /
+                    {t("common.wib")}
+                    {" "}
+                    /
+                    {" "}
                     {duration}
                     {" "}
                     MIN
@@ -34,7 +41,7 @@ export function RoomResults() {
                 <div role="alert" className="mb-4 border border-[#e0ae83] bg-[#3a2920] p-4">
                     {error}
                     {" "}
-                    <Button className="ml-3" onClick={() => void load()}>Retry</Button>
+                    <Button className="ml-3" onClick={() => void load()}>{t("common.retry")}</Button>
                 </div>
             )}
             {data && (
@@ -55,8 +62,11 @@ export function RoomResults() {
             {data && !rooms.length && (
                 <p className="border border-[#a9b68b] bg-[#183427]/95 p-8 text-xl">
                     {!hasData
-                        ? `${day.toUpperCase()} has no supplied room schedule for ${currentFaculty.shortName}. Availability is unknown.`
-                        : "No rooms match the search criteria. Try another time or a shorter minimum vacancy."}
+                        ? t("results.noScheduleForDay", {
+                                day: day.toUpperCase(),
+                                faculty: currentFaculty.shortName,
+                            })
+                        : t("results.noRoomsMatch")}
                 </p>
             )}
         </section>

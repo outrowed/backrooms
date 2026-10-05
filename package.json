@@ -18,8 +18,10 @@
     "dependencies": {
         "@fastify/static": "^10.1.5",
         "fastify": "^5.12.5",
+        "i18next": "^26.4.2",
         "react": "^19.3.0",
-        "react-dom": "^19.3.0"
+        "react-dom": "^19.3.0",
+        "react-i18next": "^17.0.15"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.5.15",
