@@ -1,5 +1,5 @@
 import { createContext, useContext, useCallback, useEffect, useState, type ReactNode } from "react";
-import { type Day, days, FACULTIES, type FacultyInfo, hasVacancy, jakartaNow, roomInfo, type Snapshot } from "../../shared/rooms";
+import { type Day, days, FACULTIES, type FacultyInfo, jakartaNow, roomInfo, type Snapshot, vacancyStatus, type VacancyStatus } from "../../shared/rooms";
 
 /** Shared discovery state and request lifecycle, owned by the application provider. */
 function useRoomModel() {
@@ -61,10 +61,12 @@ function useRoomModel() {
             && (type === "all" || room.type === type);
     });
 
-    const isVacant = (name: string, selected: Day) => {
+    const getStatus = (name: string, selected: Day): VacancyStatus => {
         const slots = data?.schedule?.[selected]?.[name];
-        return hasVacancy(slots, time, duration);
+        return vacancyStatus(slots, time, duration);
     };
+
+    const isVacant = (name: string, selected: Day) => getStatus(name, selected) === "vacant";
 
     const hasScheduleForDay = (selected: Day) => {
         if (!data?.schedule?.[selected]) return false;
@@ -89,9 +91,21 @@ function useRoomModel() {
                 const aHasData = Boolean(data?.schedule?.[day] && a in data.schedule[day]);
                 const bHasData = Boolean(data?.schedule?.[day] && b in data.schedule[day]);
 
-                // Rank: 2 = Vacant (definite), 1 = Unavailable/Occupied (definite), 0 = No data / unscheduled
-                const aRank = !aHasData ? 0 : isVacant(a, day) ? 2 : 1;
-                const bRank = !bHasData ? 0 : isVacant(b, day) ? 2 : 1;
+                // Rank: 3 = Vacant, 2 = Semivacant, 1 = Occupied, 0 = No data / unscheduled
+                const rankOf = (name: string, hasData: boolean) => {
+                    if (!hasData) return 0;
+
+                    const status = getStatus(name, day);
+
+                    if (status === "vacant") return 3;
+
+                    if (status === "semivacant") return 2;
+
+                    return 1;
+                };
+
+                const aRank = rankOf(a, aHasData);
+                const bRank = rankOf(b, bHasData);
 
                 if (aRank !== bRank) {
                     return bRank - aRank;
@@ -131,6 +145,7 @@ function useRoomModel() {
         error,
         load,
         candidates,
+        getStatus,
         isVacant,
         hasScheduleForDay,
         rooms,

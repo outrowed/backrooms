@@ -284,11 +284,27 @@ export function jakartaNow(date = new Date()) {
     };
 }
 
-/** True only when a known free interval covers the complete requested stay. */
-export function hasVacancy(classes: ClassSlot[] | undefined, time: string, duration: number): boolean {
-    if (!classes || !Number.isFinite(duration) || duration < 1) return false;
+export type VacancyStatus = "vacant" | "semivacant" | "occupied" | "unknown";
+
+/**
+ * Classify a room at the target time.
+ * - vacant: a free interval covers the whole requested stay
+ * - semivacant: free at the target time, but the interval ends before the minimum duration
+ * - occupied: a class is running at the target time (or the time is outside 08:00-18:00)
+ * - unknown: no schedule was supplied, so availability is never assumed
+ */
+export function vacancyStatus(classes: ClassSlot[] | undefined, time: string, duration: number): VacancyStatus {
+    if (!classes) return "unknown";
 
     const target = minutes(time);
+    const slot = freeSlots(classes).find(free => free.start <= target && target < free.end);
 
-    return freeSlots(classes).some(slot => slot.start <= target && slot.end >= target + duration);
+    if (!slot) return "occupied";
+
+    return Number.isFinite(duration) && duration >= 1 && slot.end >= target + duration ? "vacant" : "semivacant";
+}
+
+/** True only when a known free interval covers the complete requested stay. */
+export function hasVacancy(classes: ClassSlot[] | undefined, time: string, duration: number): boolean {
+    return vacancyStatus(classes, time, duration) === "vacant";
 }

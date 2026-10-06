@@ -49,10 +49,29 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
     const rows = classes ? scheduleRows(classes) : [];
     const target = minutes(time);
     const now = nowTime ? minutes(nowTime) : undefined;
-    const available = slots.find(slot => slot.start <= target && slot.end >= target + duration);
+    const currentFreeSlot = slots.find(slot => slot.start <= target && target < slot.end);
+    const isRoomVacant = Boolean(currentFreeSlot && currentFreeSlot.end >= target + duration);
+    const isRoomSemivacant = Boolean(currentFreeSlot && !isRoomVacant);
     const known = classes !== undefined;
     const tooltipId = `room-${room.code.replace(/\W/g, "")}-${name.length}`;
+    const statusTooltipId = `status-${room.code.replace(/\W/g, "")}-${name.length}`;
     const { t } = useTranslation();
+
+    const statusText = !known
+        ? t("roomCard.noDataBadge")
+        : isRoomVacant
+            ? t("roomCard.vacantBadge")
+            : isRoomSemivacant
+                ? t("roomCard.semivacantBadge")
+                : t("roomCard.unavailableBadge");
+
+    const statusDesc = !known
+        ? t("roomCard.statusDescNoData")
+        : isRoomVacant
+            ? t("roomCard.statusDescVacant")
+            : isRoomSemivacant
+                ? t("roomCard.statusDescSemivacant")
+                : t("roomCard.statusDescOccupied");
 
     // Timeline hover / seeking state
     const [hoverPos, setHoverPos] = useState<{
@@ -180,9 +199,30 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                             {t("roomCard.onlineBadge")}
                         </span>
                     )}
-                    <span className={`border px-2 py-1 font-pixel text-xl leading-none ${available ? "border-[#b4d08d] bg-[#a5be76] text-[#152515]" : !known ? "border-[#68706b] bg-[#2a302d] text-[#9ba39e]" : "border-[#a4a487] text-[#dedbb5]"}`}>
-                        {!known ? t("roomCard.noDataBadge") : available ? t("roomCard.vacantBadge") : t("roomCard.unavailableBadge")}
-                    </span>
+                    <div className="group relative inline-flex">
+                        <button
+                            type="button"
+                            aria-describedby={statusTooltipId}
+                            className={`cursor-help border px-2 py-1 font-pixel text-xl leading-none focus:outline-none focus:ring-1 focus:ring-[#fff5bb] ${
+                                !known
+                                    ? "border-[#68706b] bg-[#2a302d] text-[#9ba39e]"
+                                    : isRoomVacant
+                                        ? "border-[#b4d08d] bg-[#a5be76] text-[#152515]"
+                                        : isRoomSemivacant
+                                            ? "border-[#e2b053] bg-[#c49235] text-[#1f190c]"
+                                            : "border-[#a4a487] text-[#dedbb5]"
+                            }`}
+                        >
+                            {statusText}
+                        </button>
+                        <span
+                            id={statusTooltipId}
+                            role="tooltip"
+                            className="invisible absolute top-full right-0 z-30 mt-2 w-max max-w-64 border border-[#c2cea0] bg-[#0e2018] px-3 py-2 font-sans text-xs leading-snug text-[#edf0d4] shadow-[3px_3px_0_#0a140f] group-hover:visible group-focus-within:visible"
+                        >
+                            {statusDesc}
+                        </span>
+                    </div>
                 </div>
             </div>
             <p className="mt-3 text-lg">
@@ -193,14 +233,19 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                 {room.type}
             </p>
             <p className="mt-3 min-h-6 text-[#fff5bb]">
-                {available
+                {isRoomVacant && currentFreeSlot
                     ? t("roomCard.freeUntil", {
-                            time: timeLabel(available.end),
-                            left: available.end - target,
+                            time: timeLabel(currentFreeSlot.end),
+                            left: currentFreeSlot.end - target,
                         })
-                    : known
-                        ? t("roomCard.noMatchingSlot")
-                        : t("roomCard.noScheduleDay")}
+                    : isRoomSemivacant && currentFreeSlot
+                        ? t("roomCard.freeUntilShort", {
+                                time: timeLabel(currentFreeSlot.end),
+                                left: currentFreeSlot.end - target,
+                            })
+                        : known
+                            ? t("roomCard.noMatchingSlot")
+                            : t("roomCard.noScheduleDay")}
             </p>
 
             {/* Interactive Timeline Bar */}

@@ -6,9 +6,9 @@ import {
     days,
     FACULTIES,
     freeSlots,
-    hasVacancy,
     jakartaNow,
     type Schedule,
+    vacancyStatus,
 } from "../shared/rooms";
 
 const schedule = Object.fromEntries(
@@ -27,7 +27,7 @@ const schedule = Object.fromEntries(
 ) as unknown as Schedule;
 
 describe("availability boundaries", () => {
-    it("uses the same minimum vacancy boundary for counters and filtering", () => {
+    it("distinguishes vacant, semivacant, occupied, and unknown states", () => {
         const classes = [
             {
                 start: "09:00",
@@ -36,11 +36,15 @@ describe("availability boundaries", () => {
             },
         ];
 
-        expect(hasVacancy(classes, "08:30", 30)).toBe(true);
-        expect(hasVacancy(classes, "08:30", 31)).toBe(false);
-        expect(hasVacancy(undefined, "08:30", 30)).toBe(false);
-        expect(hasVacancy([], "18:00", 1)).toBe(false);
-        expect(hasVacancy([], "08:00", 0)).toBe(false);
+        // Free from 08:00 to 09:00 (60 min)
+        expect(vacancyStatus(classes, "08:15", 45)).toBe("vacant");
+        expect(vacancyStatus(classes, "08:15", 46)).toBe("semivacant");
+
+        // Occupied during class
+        expect(vacancyStatus(classes, "09:30", 30)).toBe("occupied");
+
+        // Unscheduled room
+        expect(vacancyStatus(undefined, "08:15", 30)).toBe("unknown");
     });
 
     it("clips classes and merges overlaps without phantom availability", () => {
