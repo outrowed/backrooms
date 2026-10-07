@@ -22,8 +22,8 @@ describe("program and campus metadata", () => {
     });
 });
 
-describe("legacy cache migration", () => {
-    it("serves pre-strata cache once while refreshing it", async () => {
+describe("startup cache invalidation", () => {
+    it("invalidates all cached faculties on server startup so they are marked stale", async () => {
         const { DatabaseSync } = await import("node:sqlite");
         const { createStore } = await import("../server/store");
         const { mkdtempSync } = await import("node:fs");
@@ -53,7 +53,12 @@ describe("legacy cache migration", () => {
             };
         });
 
-        expect((await store.get("fasilkom")).stale).toBe(true);
+        // Cache still serves the persisted data immediately on cold read
+        const initial = await store.get("fasilkom");
+        expect(initial.stale).toBe(true);
+        expect(initial.schedule.senin["A1.09"]).toBeDefined();
+
+        // Background re-fetch is triggered because it was stale
         await Promise.resolve();
         expect(calls).toBe(1);
         store.close();
