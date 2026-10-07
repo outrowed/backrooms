@@ -94,6 +94,7 @@
         "wallpaperTitle": "\"Stylized Backrooms 'Chevron' Wallpaper\"",
         "wallpaperLicense": "CC0 via Wikimedia Commons",
         "fontLicense": "SIL Open Font License",
-        "languageLabel": "Bahasa:"
+        "languageLabel": "Bahasa:",
+        "projectCredit": "Proyek <3>open source</3> oleh <0>{{author}}</0> · Dirilis di bawah lisensi <1>{{license}}</1> · <2>{{github}}</2>"
     }
 }

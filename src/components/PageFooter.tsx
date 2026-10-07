@@ -126,6 +126,46 @@ export function PageFooter() {
                     ]}
                 />
             </p>
+            <p className="pt-2 text-sm text-[#c8d4b2]">
+                <Trans
+                    i18nKey="footer.projectCredit"
+                    values={{
+                        author: "Taruna Prasetya",
+                        license: "MIT License",
+                        github: "GitHub",
+                    }}
+                    components={[
+                        <a
+                            key="author"
+                            className="underline hover:text-[#fff5bb]"
+                            href="https://taruna.me"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Taruna Prasetya
+                        </a>,
+                        <a
+                            key="license"
+                            className="underline hover:text-[#fff5bb]"
+                            href="https://github.com/outrowed/backrooms/blob/main/LICENSE"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            MIT License
+                        </a>,
+                        <a
+                            key="github"
+                            className="underline hover:text-[#fff5bb]"
+                            href="https://github.com/outrowed/backrooms"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            GitHub
+                        </a>,
+                        <em key="italic" className="italic" />,
+                    ]}
+                />
+            </p>
         </footer>
     );
 }

@@ -94,6 +94,7 @@
         "wallpaperTitle": "\"Stylized Backrooms 'Chevron' Wallpaper\"",
         "wallpaperLicense": "CC0 via Wikimedia Commons",
         "fontLicense": "SIL Open Font License",
-        "languageLabel": "Language:"
+        "languageLabel": "Language:",
+        "projectCredit": "An open source project by <0>{{author}}</0> · Released under <1>{{license}}</1> · <2>{{github}}</2>"
     }
 }
