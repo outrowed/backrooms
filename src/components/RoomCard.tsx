@@ -78,6 +78,12 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
         minute: number;
         clientX: number;
     } | null>(null);
+    const touchGesture = useRef<{
+        x: number;
+        y: number;
+        direction: "pending" | "horizontal" | "vertical";
+    } | null>(null);
+    const suppressTouchClick = useRef(0);
     const timelineRef = useRef<HTMLDivElement>(null);
 
     // Calculate time (in minutes from midnight) from pointer coordinate
@@ -123,6 +129,8 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
     };
 
     const handleClick = (e: MouseEvent<HTMLDivElement>) => {
+        if (Date.now() < suppressTouchClick.current) return;
+
         handleSeek(e.clientX);
         setHoverPos(null);
     };
@@ -131,6 +139,19 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
         if (!known || e.touches.length === 0) return;
 
         const touch = e.touches[0];
+        const gesture = touchGesture.current;
+
+        if (!gesture) return;
+
+        const dx = Math.abs(touch.clientX - gesture.x);
+        const dy = Math.abs(touch.clientY - gesture.y);
+
+        if (gesture.direction === "pending" && Math.max(dx, dy) >= 10) {
+            gesture.direction = dx > dy * 1.5 ? "horizontal" : "vertical";
+        }
+
+        if (gesture.direction !== "horizontal") return;
+
         const min = getMinuteFromPointer(touch.clientX);
 
         if (min !== null) {
@@ -290,8 +311,26 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                                 onMouseMove={handlePointerMove}
                                 onMouseLeave={handlePointerLeave}
                                 onClick={handleClick}
+                                onTouchStart={(event) => {
+                                    const touch = event.touches[0];
+                                    suppressTouchClick.current = Date.now() + 1000;
+                                    touchGesture.current = {
+                                        x: touch.clientX,
+                                        y: touch.clientY,
+                                        direction: "pending",
+                                    };
+                                }}
+                                style={{ touchAction: "pan-y" }}
                                 onTouchMove={handleTouchMove}
-                                onTouchEnd={handlePointerLeave}
+                                onTouchEnd={() => {
+                                    suppressTouchClick.current = Date.now() + 1000;
+                                    touchGesture.current = null;
+                                    handlePointerLeave();
+                                }}
+                                onTouchCancel={() => {
+                                    touchGesture.current = null;
+                                    handlePointerLeave();
+                                }}
                                 onKeyDown={(e) => {
                                     if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
                                         e.preventDefault();

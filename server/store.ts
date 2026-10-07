@@ -119,6 +119,13 @@ export function createStore(path: string, fetcher: ScheduleFetcher = defaultFetc
         );
     `);
 
+    // Schema v1 adds prodi/strata to slots: mark older caches stale so they are served once, then refreshed.
+    const { user_version: version } = db.prepare("PRAGMA user_version").get() as { user_version: number };
+
+    if (version < 1) {
+        db.exec("UPDATE faculty_sync SET fetched_at = 0; PRAGMA user_version = 1;");
+    }
+
     const inFlightMap = new Map<string, Promise<Snapshot>>();
     const retryAfterMap = new Map<string, number>();
 

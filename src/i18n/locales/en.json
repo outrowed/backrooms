@@ -21,6 +21,8 @@
         "building": "BUILDING",
         "allBuildings": "All buildings",
         "buildingNew": "Gedung Baru",
+        "buildingCampus": "Kampus UI",
+        "buildingSalemba": "Salemba",
         "buildingOld": "Gedung Lama",
         "roomType": "ROOM TYPE",
         "allTypes": "All types",
@@ -33,7 +35,10 @@
         "includeVirtual": "Include online / virtual rooms",
         "sortBy": "SORT BY",
         "sortByName": "Room name (A - Z)",
-        "sortByVacant": "Vacancy status (vacant first)"
+        "sortByVacant": "Vacancy status (vacant first)",
+        "strata": "STRATA",
+        "allStrata": "All strata",
+        "unknownStrata": "Unknown strata"
     },
     "weekdays": {
         "senin": "Monday",

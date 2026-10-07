@@ -182,6 +182,8 @@ export function parseSlcmClassData(items: Array<{
     classname?: string;
     coursename?: string;
     dates_rooms?: string[];
+    prodi?: string;
+    strata?: string;
 }>): Schedule {
     const schedule = Object.fromEntries(days.map(d => [d, {}])) as Schedule;
 
@@ -209,7 +211,7 @@ export function parseSlcmClassData(items: Array<{
 
             const existing = schedule[dayKey][room];
             const duplicate = existing.some(
-                s => s.start === `${sh}:${sm}` && s.end === `${eh}:${em}` && s.class === className,
+                s => s.start === `${sh}:${sm}` && s.end === `${eh}:${em}` && s.class === className && s.prodi === item.prodi,
             );
 
             if (!duplicate) {
@@ -217,6 +219,8 @@ export function parseSlcmClassData(items: Array<{
                     start: `${sh}:${sm}`,
                     end: `${eh}:${em}`,
                     class: className,
+                    prodi: item.prodi,
+                    strata: item.strata,
                 });
             }
         }
@@ -225,7 +229,10 @@ export function parseSlcmClassData(items: Array<{
     return schedule;
 }
 
-const facultySubOrgsCache = new Map<string, string[]>();
+const facultySubOrgsCache = new Map<string, Array<{
+    code: string;
+    name: string;
+}>>();
 
 export async function getFacultySubOrgs(
     facultyCode: string,
@@ -234,7 +241,10 @@ export async function getFacultySubOrgs(
         accessToken: string;
         appToken: string;
     },
-): Promise<string[]> {
+): Promise<Array<{
+    code: string;
+    name: string;
+}>> {
     const cached = facultySubOrgsCache.get(facultyCode);
 
     if (cached) return cached;
@@ -255,8 +265,16 @@ export async function getFacultySubOrgs(
 
         if (res.ok) {
             const json = await res.json();
-            const data: Array<{ code?: string }> = json.data || [];
-            const codes = data.map(item => item.code).filter((c): c is string => Boolean(c));
+            const data: Array<{
+                code?: string;
+                name?: string;
+            }> = json.data || [];
+            const codes = data.flatMap(item => item.code
+                ? [{
+                        code: item.code,
+                        name: item.name || "",
+                    }]
+                : []);
 
             if (codes.length > 0) {
                 facultySubOrgsCache.set(facultyCode, codes);
@@ -266,7 +284,10 @@ export async function getFacultySubOrgs(
     }
     catch {}
 
-    return [fallbackOrgCode];
+    return [{
+        code: fallbackOrgCode,
+        name: "",
+    }];
 }
 
 export async function fetchSlcmSchedule(faculty: FacultyInfo): Promise<Schedule> {
@@ -281,7 +302,11 @@ export async function fetchSlcmSchedule(faculty: FacultyInfo): Promise<Schedule>
 
     const userAgent = "Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0";
 
-    const fetchOrgClasses = async (orgCode: string) => {
+    const fetchOrgClasses = async (org: {
+        code: string;
+        name: string;
+    }) => {
+        const orgCode = org.code;
         const url = `https://slcm.ui.ac.id/akademik/api/v1/class/whole?org=${encodeURIComponent(orgCode)}&year=${session.year}&term=${session.term}&lang=id`;
 
         try {
@@ -299,7 +324,13 @@ export async function fetchSlcmSchedule(faculty: FacultyInfo): Promise<Schedule>
             if (!res.ok) return [];
 
             const json = await res.json();
-            return Array.isArray(json.data) ? json.data : [];
+            return Array.isArray(json.data)
+                ? json.data.map((item: object) => ({
+                        ...item,
+                        prodi: org.name,
+                        strata: org.name.match(/\b(?:S[123]|D[234])\b/i)?.[0].toUpperCase() || "unknown",
+                    }))
+                : [];
         }
         catch {
             return [];
@@ -311,6 +342,8 @@ export async function fetchSlcmSchedule(faculty: FacultyInfo): Promise<Schedule>
         classname?: string;
         coursename?: string;
         dates_rooms?: string[];
+        prodi?: string;
+        strata?: string;
     }> = [];
 
     for (let i = 0; i < orgCodes.length; i += batchSize) {

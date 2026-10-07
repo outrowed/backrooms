@@ -153,6 +153,8 @@ export interface ClassSlot {
     start: string;
     end: string;
     class: string;
+    prodi?: string;
+    strata?: string;
 }
 
 export type Schedule = Record<Day, Record<string, ClassSlot[]>>;
@@ -214,13 +216,16 @@ export function isVirtualRoom(name: string): boolean {
 }
 
 export function roomInfo(name: string, facultyId = "fasilkom") {
-    const building = /g(d|ed)\.?\s*lama/i.test(name)
-        ? "Gedung Lama"
-        : /g(d|ed)\.?\s*baru/i.test(name)
-            ? "Gedung Baru"
-            : /gedung\s+[a-z]/i.test(name) || /gedung\s+[0-9]/i.test(name)
-                ? name.match(/gedung\s+[a-z0-9]+/i)?.[0] ?? "Kampus UI"
-                : "Kampus UI";
+    const campus = /salemba/i.test(name) ? "Salemba" : undefined;
+    const building = campus === "Salemba"
+        ? "Salemba"
+        : /g(d|ed)\.?\s*lama/i.test(name)
+            ? "Gedung Lama"
+            : /g(d|ed)\.?\s*baru/i.test(name)
+                ? "Gedung Baru"
+                : /gedung\s+[a-z]/i.test(name) || /gedung\s+[0-9]/i.test(name)
+                    ? name.match(/gedung\s+[a-z0-9]+/i)?.[0] ?? "Kampus UI"
+                    : "Kampus UI";
 
     const type = /auditorium/i.test(name)
         ? "auditorium"
@@ -232,6 +237,7 @@ export function roomInfo(name: string, facultyId = "fasilkom") {
     // For other faculties, keep code equal to full name to avoid confusing or broken abbreviations.
     if (facultyId !== "fasilkom") {
         return {
+            campus,
             name,
             code: name,
             building,
@@ -247,6 +253,7 @@ export function roomInfo(name: string, facultyId = "fasilkom") {
     if (name.includes("+Lab")) code += "+";
 
     return {
+        campus,
         name,
         code,
         building,

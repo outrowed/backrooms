@@ -13,6 +13,7 @@ function useRoomModel() {
     const [type, setType] = useState("all");
     const [includeVirtual, setIncludeVirtual] = useState(false);
     const [showUnavailable, setShowUnavailable] = useState(false);
+    const [strata, setStrata] = useState("S1");
     const [sortBy, setSortBy] = useState<"name" | "vacant">("name");
     const [data, setData] = useState<Snapshot>();
     const [loading, setLoading] = useState(true);
@@ -53,6 +54,12 @@ function useRoomModel() {
     const names = data?.schedule ? [...new Set(days.flatMap(value => Object.keys(data.schedule[value] || {})))].sort() : [];
     const candidates = names.filter((name) => {
         const room = roomInfo(name, faculty);
+
+        // Strata only filters which rooms are listed; every program's classes still count as occupied.
+        // Rooms without any strata metadata (e.g. the Cesilia fallback) cannot be classified, so they stay visible.
+        const slots = days.flatMap(value => data?.schedule[value]?.[name] ?? []);
+
+        if (strata !== "all" && slots.some(slot => slot.strata) && !slots.some(slot => slot.strata === strata)) return false;
 
         if (!includeVirtual && room.isVirtual) return false;
 
@@ -138,6 +145,8 @@ function useRoomModel() {
         setIncludeVirtual,
         showUnavailable,
         setShowUnavailable,
+        strata,
+        setStrata,
         sortBy,
         setSortBy,
         data,

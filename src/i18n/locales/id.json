@@ -21,6 +21,8 @@
         "building": "GEDUNG",
         "allBuildings": "Semua gedung",
         "buildingNew": "Gedung Baru",
+        "buildingCampus": "Kampus UI",
+        "buildingSalemba": "Salemba",
         "buildingOld": "Gedung Lama",
         "roomType": "TIPE RUANGAN",
         "allTypes": "Semua tipe",
@@ -33,7 +35,10 @@
         "includeVirtual": "Sertakan ruangan online / virtual",
         "sortBy": "URUTKAN",
         "sortByName": "Nama ruangan (A - Z)",
-        "sortByVacant": "Status ketersediaan (kosong dahulu)"
+        "sortByVacant": "Status ketersediaan (kosong dahulu)",
+        "strata": "STRATA",
+        "allStrata": "Semua strata",
+        "unknownStrata": "Strata tidak diketahui"
     },
     "weekdays": {
         "senin": "Senin",

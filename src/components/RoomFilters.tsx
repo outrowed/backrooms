@@ -16,6 +16,8 @@ export function RoomFilters() {
         setBuilding,
         type,
         setType,
+        strata,
+        setStrata,
         sortBy,
         setSortBy,
         time,
@@ -108,6 +110,8 @@ export function RoomFilters() {
                             <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.building")}</span>
                             <Select id="room-building" value={building} onChange={event => setBuilding(event.target.value)}>
                                 <option value="all">{t("filters.allBuildings")}</option>
+                                <option value="Kampus UI">{t("filters.buildingCampus")}</option>
+                                <option value="Salemba">{t("filters.buildingSalemba")}</option>
                                 <option value="Gedung Baru">{t("filters.buildingNew")}</option>
                                 <option value="Gedung Lama">{t("filters.buildingOld")}</option>
                             </Select>
@@ -119,6 +123,15 @@ export function RoomFilters() {
                                 <option value="classroom">{t("filters.typeClassroom")}</option>
                                 <option value="lab">{t("filters.typeLab")}</option>
                                 <option value="auditorium">{t("filters.typeAuditorium")}</option>
+                            </Select>
+                        </label>
+                        <label htmlFor="room-strata">
+                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.strata")}</span>
+                            <Select id="room-strata" value={strata} onChange={event => setStrata(event.target.value)}>
+                                <option value="all">{t("filters.allStrata")}</option>
+                                {["S1", "S2", "S3", "D2", "D3", "D4", "unknown"].map(value => (
+                                    <option key={value} value={value}>{value === "unknown" ? t("filters.unknownStrata") : value}</option>
+                                ))}
                             </Select>
                         </label>
                         <label htmlFor="room-sort">
