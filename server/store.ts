@@ -48,55 +48,10 @@ export function validateSchedule(value: unknown): Schedule {
     return value as Schedule;
 }
 
-/** Fallback fetcher from csui.cesilia.dev when SLCM credentials are not configured */
-export async function fetchCesiliaSchedule(): Promise<Schedule> {
-    const entries = await Promise.all(
-        days.map(async (day) => {
-            if (day === "sabtu") {
-                return [day, {}] as const;
-            }
-
-            try {
-                const response = await fetch(`https://csui.cesilia.dev/ruangan/schedule/${day}.json`, {
-                    signal: AbortSignal.timeout(15000),
-                });
-
-                if (!response.ok) return [day, {}] as const;
-
-                const json = await response.json();
-
-                return [day, json && typeof json === "object" ? json : {}] as const;
-            }
-            catch {
-                return [day, {}] as const;
-            }
-        }),
-    );
-
-    return Object.fromEntries(entries) as Schedule;
-}
-
 export type ScheduleFetcher = (faculty: FacultyInfo) => Promise<Schedule>;
 
 export async function defaultFetcher(faculty: FacultyInfo): Promise<Schedule> {
-    try {
-        return await fetchSlcmSchedule(faculty);
-    }
-    catch (err) {
-        // If fasilkom, fall back to cesilia if credentials are not configured or request failed
-        if (faculty.id === "fasilkom") {
-            try {
-                const fallback = await fetchCesiliaSchedule();
-
-                if (Object.keys(fallback.senin || {}).length > 0) {
-                    return fallback;
-                }
-            }
-            catch {}
-        }
-
-        throw err;
-    }
+    return fetchSlcmSchedule(faculty);
 }
 
 /** Per-faculty on-demand SQLite cache */

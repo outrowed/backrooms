@@ -56,7 +56,7 @@ function useRoomModel() {
         const room = roomInfo(name, faculty);
 
         // Strata only filters which rooms are listed; every program's classes still count as occupied.
-        // Rooms without any strata metadata (e.g. the Cesilia fallback) cannot be classified, so they stay visible.
+        // Rooms without strata metadata cannot be classified, so they stay visible.
         const slots = days.flatMap(value => data?.schedule[value]?.[name] ?? []);
 
         if (strata !== "all" && slots.some(slot => slot.strata) && !slots.some(slot => slot.strata === strata)) return false;
