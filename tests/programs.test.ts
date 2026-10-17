@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseSlcmClassData } from "../server/slcm";
+import { loadCredentials, parseSlcmClassData } from "../server/slcm";
 import { roomInfo, vacancyStatus } from "../shared/rooms";
 
 describe("program and campus metadata", () => {
@@ -62,5 +62,45 @@ describe("startup cache invalidation", () => {
         await Promise.resolve();
         expect(calls).toBe(1);
         store.close();
+    });
+});
+
+describe("SLCM credential file parsing", () => {
+    it("supports SLCM_ prefixes and preserves equals signs in passwords", async () => {
+        const { mkdtempSync, writeFileSync } = await import("node:fs");
+        const { join } = await import("node:path");
+        const { tmpdir } = await import("node:os");
+        const envPath = join(mkdtempSync(join(tmpdir(), "backrooms-auth-")), "AUTH_DATA.env");
+
+        writeFileSync(
+            envPath,
+            "# Comment line\nSLCM_USERNAME = student.ui\nSLCM_PASSWORD = p@ss=w0rd==123\n",
+        );
+
+        const prevSlcmUser = process.env.SLCM_USERNAME;
+        const prevUser = process.env.USERNAME;
+        const prevSlcmPass = process.env.SLCM_PASSWORD;
+        const prevPass = process.env.PASSWORD;
+
+        delete process.env.SLCM_USERNAME;
+        delete process.env.USERNAME;
+        delete process.env.SLCM_PASSWORD;
+        delete process.env.PASSWORD;
+
+        try {
+            expect(loadCredentials(envPath)).toEqual({
+                username: "student.ui",
+                password: "p@ss=w0rd==123",
+            });
+        }
+        finally {
+            if (prevSlcmUser !== undefined) process.env.SLCM_USERNAME = prevSlcmUser;
+
+            if (prevUser !== undefined) process.env.USERNAME = prevUser;
+
+            if (prevSlcmPass !== undefined) process.env.SLCM_PASSWORD = prevSlcmPass;
+
+            if (prevPass !== undefined) process.env.PASSWORD = prevPass;
+        }
     });
 });

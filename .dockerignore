@@ -2,6 +2,7 @@ node_modules
 dist
 dist-server
 data
+docs
 .git
 *.log
 AUTH_DATA.env

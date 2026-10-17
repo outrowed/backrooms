@@ -18,22 +18,31 @@ export interface SlcmCredentials {
     password: string;
 }
 
-export function loadCredentials(): SlcmCredentials | null {
+export function loadCredentials(envPath = "AUTH_DATA.env"): SlcmCredentials | null {
     let username = process.env.SLCM_USERNAME || process.env.USERNAME || "";
     let password = process.env.SLCM_PASSWORD || process.env.PASSWORD || "";
 
-    if ((!username || !password) && existsSync("AUTH_DATA.env")) {
-        const lines = readFileSync("AUTH_DATA.env", "utf-8").split("\n");
+    if ((!username || !password) && existsSync(envPath)) {
+        const lines = readFileSync(envPath, "utf-8").split("\n");
 
         for (const line of lines) {
             const trimmed = line.trim();
 
-            if (trimmed.startsWith("USERNAME=")) {
-                username = trimmed.split("=")[1].trim();
+            if (!trimmed || trimmed.startsWith("#")) continue;
+
+            const eqIndex = trimmed.indexOf("=");
+
+            if (eqIndex === -1) continue;
+
+            const key = trimmed.slice(0, eqIndex).trim();
+            const value = trimmed.slice(eqIndex + 1).trim();
+
+            if (!username && (key === "SLCM_USERNAME" || key === "USERNAME")) {
+                username = value;
             }
 
-            if (trimmed.startsWith("PASSWORD=")) {
-                password = trimmed.split("=")[1].trim();
+            if (!password && (key === "SLCM_PASSWORD" || key === "PASSWORD")) {
+                password = value;
             }
         }
     }
@@ -82,6 +91,7 @@ export async function authenticateSlcm(creds: SlcmCredentials) {
     const getRes = await fetch(authUrl, {
         headers: { "User-Agent": userAgent },
         redirect: "manual",
+        signal: AbortSignal.timeout(15000),
     });
 
     const cookies: string[] = [];
@@ -117,6 +127,7 @@ export async function authenticateSlcm(creds: SlcmCredentials) {
         },
         body: loginBody.toString(),
         redirect: "manual",
+        signal: AbortSignal.timeout(15000),
     });
 
     const location = postRes.headers.get("location");
@@ -142,6 +153,7 @@ export async function authenticateSlcm(creds: SlcmCredentials) {
             redirect_uri: "https://slcm.ui.ac.id/portal",
             code_verifier: verifier,
         }).toString(),
+        signal: AbortSignal.timeout(15000),
     });
 
     if (!tokenRes.ok) throw new Error(`Token exchange failed: ${tokenRes.status}`);
@@ -156,6 +168,7 @@ export async function authenticateSlcm(creds: SlcmCredentials) {
             "Authorization": `Bearer ${accessToken}`,
             "Referer": "https://slcm.ui.ac.id/akademik/schedule/class/whole",
         },
+        signal: AbortSignal.timeout(15000),
     });
 
     if (!userRes.ok) throw new Error(`SLCM user info request failed: ${userRes.status}`);
@@ -202,8 +215,6 @@ export function parseSlcmClassData(items: Array<{
             if (!dayKey) continue;
 
             const room = roomRaw.trim();
-
-            // virtual room included per user request
 
             if (!schedule[dayKey][room]) {
                 schedule[dayKey][room] = [];
@@ -261,6 +272,7 @@ export async function getFacultySubOrgs(
                 "x-app-token": session.appToken,
                 "Referer": "https://slcm.ui.ac.id/akademik/schedule/class/whole",
             },
+            signal: AbortSignal.timeout(15000),
         });
 
         if (res.ok) {
