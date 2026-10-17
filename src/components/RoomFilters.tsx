@@ -64,11 +64,11 @@ export function RoomFilters() {
             {advanced && (
                 <div
                     id="advanced-filters"
-                    className="border-2 border-[#a9b68b] border-t-0 bg-[#183427]/95 p-4 shadow-[6px_6px_0_#17251b] sm:p-5"
+                    className="border-2 border-room-border border-t-0 bg-room-surface/95 p-4 shadow-retro-lg sm:p-5"
                 >
-                    <div className="grid gap-4 text-[#d1dbb8] sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-4 text-room-text-muted sm:grid-cols-2 lg:grid-cols-4">
                         <label htmlFor="faculty-select" className="sm:col-span-2 lg:col-span-2">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.faculty")}</span>
+                            <span className="mb-1 block font-pixel text-2xl text-room-text-muted">{t("filters.faculty")}</span>
                             <Select
                                 id="faculty-select"
                                 value={faculty}
@@ -82,7 +82,7 @@ export function RoomFilters() {
                             </Select>
                         </label>
                         <label htmlFor="room-time">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.timeWib")}</span>
+                            <span className="mb-1 block font-pixel text-2xl text-room-text-muted">{t("filters.timeWib")}</span>
                             <Input
                                 id="room-time"
                                 type="time"
@@ -94,7 +94,7 @@ export function RoomFilters() {
                             />
                         </label>
                         <label htmlFor="room-duration">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.minVacancy")}</span>
+                            <span className="mb-1 block font-pixel text-2xl text-room-text-muted">{t("filters.minVacancy")}</span>
                             <Input
                                 id="room-duration"
                                 type="number"
@@ -104,10 +104,10 @@ export function RoomFilters() {
                                 value={duration}
                                 onChange={event => setDuration(Math.max(1, Math.min(600, Number(event.target.value) || 1)))}
                             />
-                            <span className="mt-1 block text-sm text-[#a8ba7e]">{t("filters.minVacancySub")}</span>
+                            <span className="mt-1 block text-sm text-room-button">{t("filters.minVacancySub")}</span>
                         </label>
                         <label htmlFor="room-building">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.building")}</span>
+                            <span className="mb-1 block font-pixel text-2xl text-room-text-muted">{t("filters.building")}</span>
                             <Select id="room-building" value={building} onChange={event => setBuilding(event.target.value)}>
                                 <option value="all">{t("filters.allBuildings")}</option>
                                 <option value="Kampus UI">{t("filters.buildingCampus")}</option>
@@ -117,7 +117,7 @@ export function RoomFilters() {
                             </Select>
                         </label>
                         <label htmlFor="room-type">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.roomType")}</span>
+                            <span className="mb-1 block font-pixel text-2xl text-room-text-muted">{t("filters.roomType")}</span>
                             <Select id="room-type" value={type} onChange={event => setType(event.target.value)}>
                                 <option value="all">{t("filters.allTypes")}</option>
                                 <option value="classroom">{t("filters.typeClassroom")}</option>
@@ -126,7 +126,7 @@ export function RoomFilters() {
                             </Select>
                         </label>
                         <label htmlFor="room-strata">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.strata")}</span>
+                            <span className="mb-1 block font-pixel text-2xl text-room-text-muted">{t("filters.strata")}</span>
                             <Select id="room-strata" value={strata} onChange={event => setStrata(event.target.value)}>
                                 <option value="all">{t("filters.allStrata")}</option>
                                 {["S1", "S2", "S3", "D2", "D3", "D4", "unknown"].map(value => (
@@ -135,7 +135,7 @@ export function RoomFilters() {
                             </Select>
                         </label>
                         <label htmlFor="room-sort">
-                            <span className="mb-1 block font-pixel text-2xl text-[#d1dbb8]">{t("filters.sortBy")}</span>
+                            <span className="mb-1 block font-pixel text-2xl text-room-text-muted">{t("filters.sortBy")}</span>
                             <Select id="room-sort" value={sortBy} onChange={event => setSortBy(event.target.value as "name" | "vacant")}>
                                 <option value="name">{t("filters.sortByName")}</option>
                                 <option value="vacant">{t("filters.sortByVacant")}</option>
@@ -156,19 +156,19 @@ export function RoomFilters() {
                             >
                                 {t("filters.useCurrentTime")}
                             </Button>
-                            <label className="flex min-h-11 items-center gap-2 text-lg text-[#edf0d4]">
+                            <label className="flex min-h-11 items-center gap-2 text-lg text-room-text">
                                 <input
                                     type="checkbox"
-                                    className="h-5 w-5 accent-[#c0d494]"
+                                    className="h-5 w-5 accent-room-accent"
                                     checked={showUnavailable}
                                     onChange={event => setShowUnavailable(event.target.checked)}
                                 />
                                 {t("filters.showUnscheduled")}
                             </label>
-                            <label className="flex min-h-11 items-center gap-2 text-lg text-[#edf0d4]">
+                            <label className="flex min-h-11 items-center gap-2 text-lg text-room-text">
                                 <input
                                     type="checkbox"
-                                    className="h-5 w-5 accent-[#c0d494]"
+                                    className="h-5 w-5 accent-room-accent"
                                     checked={includeVirtual}
                                     onChange={event => setIncludeVirtual(event.target.checked)}
                                 />

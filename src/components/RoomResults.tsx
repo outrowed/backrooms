@@ -13,7 +13,7 @@ export function RoomResults() {
 
     return (
         <section id="rooms" aria-label="Room results" className="mt-7">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[#c0c59a] bg-[#193326]/95 px-4 py-3">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-room-text-subtle bg-room-surface-alt/95 px-4 py-3">
                 <h2 className="font-pixel text-3xl">
                     {loading && !data ? t("results.searching") : t("results.roomsFound", { count: rooms.length })}
                 </h2>
@@ -38,7 +38,7 @@ export function RoomResults() {
                 </span>
             </div>
             {error && (
-                <div role="alert" className="mb-4 border border-[#e0ae83] bg-[#3a2920] p-4">
+                <div role="alert" className="mb-4 border border-room-alert-border bg-room-alert-bg p-4">
                     {error}
                     {" "}
                     <Button className="ml-3" onClick={() => void load()}>{t("common.retry")}</Button>
@@ -60,7 +60,7 @@ export function RoomResults() {
                 </div>
             )}
             {data && !rooms.length && (
-                <p className="border border-[#a9b68b] bg-[#183427]/95 p-8 text-xl">
+                <p className="border border-room-border bg-room-surface/95 p-8 text-xl">
                     {!hasData
                         ? t("results.noScheduleForDay", {
                                 day: day.toUpperCase(),

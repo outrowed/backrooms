@@ -27,7 +27,7 @@ export function WeekNavigation() {
                         key={value}
                         aria-pressed={day === value}
                         onClick={() => setDay(value)}
-                        className={`min-h-20 border p-3 text-left ${day === value ? "border-[#f0e9af] bg-[#a8ba7e] text-[#172719]" : "border-[#a9b68b] bg-[#193326]/95 text-[#edf0d4]"}`}
+                        className={`min-h-20 border p-3 text-left ${day === value ? "border-room-heading bg-room-button text-room-tooltip-bg" : "border-room-border bg-room-surface-alt/95 text-room-text"}`}
                     >
                         <span className="block font-pixel text-2xl">{dayLabels[value] || value}</span>
                         <span className="mt-1 block text-sm">

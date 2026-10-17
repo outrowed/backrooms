@@ -8,7 +8,7 @@ export function PageFooter() {
     const locale = i18n.resolvedLanguage || i18n.language || "en";
 
     return (
-        <footer className="mt-8 space-y-3 border border-[#a9b68b] bg-[#173225]/95 p-5 text-base text-[#dae0c7]">
+        <footer className="mt-8 space-y-3 border border-room-border bg-room-surface/95 p-5 text-base text-room-text-body">
             <p>
                 <Trans
                     i18nKey="footer.disclaimer"
@@ -16,7 +16,7 @@ export function PageFooter() {
                     components={[
                         <a
                             key="slcm-link"
-                            className="underline hover:text-[#fff5bb]"
+                            className="underline hover:text-room-glow"
                             href="https://slcm.ui.ac.id"
                             target="_blank"
                             rel="noreferrer"
@@ -42,7 +42,7 @@ export function PageFooter() {
                         components={[
                             <a
                                 key="slcm-source"
-                                className="underline hover:text-[#fff5bb]"
+                                className="underline hover:text-room-glow"
                                 href="https://slcm.ui.ac.id"
                                 target="_blank"
                                 rel="noreferrer"
@@ -64,13 +64,13 @@ export function PageFooter() {
                     )}
                 </p>
                 <label htmlFor="language-select" className="flex items-center gap-2">
-                    <span className="font-pixel text-xl text-[#fff5bb]">{t("footer.languageLabel")}</span>
+                    <span className="font-pixel text-xl text-room-glow">{t("footer.languageLabel")}</span>
                     <Select
                         id="language-select"
                         aria-label={t("footer.languageLabel")}
                         value={locale.startsWith("id") ? "id" : "en"}
                         onChange={e => void i18n.changeLanguage(e.target.value)}
-                        className="min-h-9 w-auto px-2 py-1 font-pixel text-xl text-[#fff5bb]"
+                        className="min-h-9 w-auto px-2 py-1 font-pixel text-xl text-room-glow"
                     >
                         <option value="en">English (EN)</option>
                         <option value="id">Bahasa Indonesia (ID)</option>
@@ -89,7 +89,7 @@ export function PageFooter() {
                     components={[
                         <a
                             key="wp-title"
-                            className="underline hover:text-[#fff5bb]"
+                            className="underline hover:text-room-glow"
                             href="https://commons.wikimedia.org/wiki/File:Stylized_Backrooms_%27Chevron%27_Wallpaper.png"
                             target="_blank"
                             rel="noreferrer"
@@ -98,7 +98,7 @@ export function PageFooter() {
                         </a>,
                         <a
                             key="wp-license"
-                            className="underline hover:text-[#fff5bb]"
+                            className="underline hover:text-room-glow"
                             href="https://creativecommons.org/publicdomain/zero/1.0/"
                             target="_blank"
                             rel="noreferrer"
@@ -107,7 +107,7 @@ export function PageFooter() {
                         </a>,
                         <a
                             key="font-specimen"
-                            className="underline hover:text-[#fff5bb]"
+                            className="underline hover:text-room-glow"
                             href="https://fonts.google.com/specimen/VT323"
                             target="_blank"
                             rel="noreferrer"
@@ -116,7 +116,7 @@ export function PageFooter() {
                         </a>,
                         <a
                             key="font-license"
-                            className="underline hover:text-[#fff5bb]"
+                            className="underline hover:text-room-glow"
                             href="https://openfontlicense.org"
                             target="_blank"
                             rel="noreferrer"
@@ -126,7 +126,7 @@ export function PageFooter() {
                     ]}
                 />
             </p>
-            <p className="pt-2 text-sm text-[#c8d4b2]">
+            <p className="pt-2 text-sm text-room-text-muted">
                 <Trans
                     i18nKey="footer.projectCredit"
                     values={{
@@ -137,7 +137,7 @@ export function PageFooter() {
                     components={[
                         <a
                             key="author"
-                            className="underline hover:text-[#fff5bb]"
+                            className="underline hover:text-room-glow"
                             href="https://taruna.me"
                             target="_blank"
                             rel="noreferrer"
@@ -146,7 +146,7 @@ export function PageFooter() {
                         </a>,
                         <a
                             key="license"
-                            className="underline hover:text-[#fff5bb]"
+                            className="underline hover:text-room-glow"
                             href="https://github.com/outrowed/backrooms/blob/main/LICENSE"
                             target="_blank"
                             rel="noreferrer"
@@ -155,7 +155,7 @@ export function PageFooter() {
                         </a>,
                         <a
                             key="github"
-                            className="underline hover:text-[#fff5bb]"
+                            className="underline hover:text-room-glow"
                             href="https://github.com/outrowed/backrooms"
                             target="_blank"
                             rel="noreferrer"

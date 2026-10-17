@@ -204,19 +204,19 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
     const hoveredInfo = hoverPos ? getSlotInfoAt(hoverPos.minute) : null;
 
     return (
-        <article className={`border p-5 shadow-[4px_4px_0_#101e16] ${!known ? "border-[#525c55] bg-[#1a221e]/85 opacity-75" : "border-[#90a078] bg-[#142e22]/90"}`}>
+        <article className={`border p-5 shadow-retro-md ${!known ? "border-room-border-muted bg-room-card-muted/85 opacity-75" : "border-room-border-subtle bg-room-card/90"}`}>
             <div className="flex flex-wrap items-start justify-between gap-3">
-                <h2 className="group relative font-pixel text-4xl leading-none text-[#fff5bb]">
+                <h2 className="group relative font-pixel text-4xl leading-none text-room-glow">
                     <button type="button" aria-describedby={tooltipId} className="cursor-help underline decoration-dotted decoration-2 underline-offset-4 focus-visible:outline-offset-2">
                         {room.code}
                     </button>
-                    <span id={tooltipId} role="tooltip" className="invisible absolute top-full left-0 z-30 mt-2 w-max max-w-64 border border-[#c2cea0] bg-[#0e2018] px-3 py-2 font-sans text-sm leading-snug text-[#edf0d4] shadow-[3px_3px_0_#0a140f] group-hover:visible group-focus-within:visible">
+                    <span id={tooltipId} role="tooltip" className="invisible absolute top-full left-0 z-30 mt-2 w-max max-w-64 border border-room-text-subtle bg-room-tooltip-bg px-3 py-2 font-sans text-sm leading-snug text-room-text shadow-retro-sm group-hover:visible group-focus-within:visible">
                         {name}
                     </span>
                 </h2>
                 <div className="flex items-center gap-2">
                     {room.isVirtual && (
-                        <span className="border border-[#7e9ba6] bg-[#223942] px-2 py-1 font-pixel text-lg leading-none text-[#bde0ee]">
+                        <span className="border border-room-online-border bg-room-online-bg px-2 py-1 font-pixel text-lg leading-none text-room-online-text">
                             {t("roomCard.onlineBadge")}
                         </span>
                     )}
@@ -224,14 +224,14 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                         <button
                             type="button"
                             aria-describedby={statusTooltipId}
-                            className={`cursor-help border px-2 py-1 font-pixel text-xl leading-none focus:outline-none focus:ring-1 focus:ring-[#fff5bb] ${
+                            className={`cursor-help border px-2 py-1 font-pixel text-xl leading-none focus:outline-none focus:ring-1 focus:ring-room-glow ${
                                 !known
-                                    ? "border-[#68706b] bg-[#2a302d] text-[#9ba39e]"
+                                    ? "border-room-border-muted bg-room-badge-occupied-bg text-room-text-subtle"
                                     : isRoomVacant
-                                        ? "border-[#b4d08d] bg-[#a5be76] text-[#152515]"
+                                        ? "border-room-track-free bg-room-button text-room-button-text"
                                         : isRoomSemivacant
-                                            ? "border-[#e2b053] bg-[#c49235] text-[#1f190c]"
-                                            : "border-[#a4a487] text-[#dedbb5]"
+                                            ? "border-room-warning-border bg-room-warning text-room-warning-text"
+                                            : "border-room-badge-unknown-border text-room-badge-unknown-text"
                             }`}
                         >
                             {statusText}
@@ -239,7 +239,7 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                         <span
                             id={statusTooltipId}
                             role="tooltip"
-                            className="invisible absolute top-full right-0 z-30 mt-2 w-max max-w-64 border border-[#c2cea0] bg-[#0e2018] px-3 py-2 font-sans text-xs leading-snug text-[#edf0d4] shadow-[3px_3px_0_#0a140f] group-hover:visible group-focus-within:visible"
+                            className="invisible absolute top-full right-0 z-30 mt-2 w-max max-w-64 border border-room-text-subtle bg-room-tooltip-bg px-3 py-2 font-sans text-xs leading-snug text-room-text shadow-retro-sm group-hover:visible group-focus-within:visible"
                         >
                             {statusDesc}
                         </span>
@@ -253,7 +253,7 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                 {" "}
                 {room.type}
             </p>
-            <p className="mt-3 min-h-6 text-[#fff5bb]">
+            <p className="mt-3 min-h-6 text-room-glow">
                 {isRoomVacant && currentFreeSlot
                     ? t("roomCard.freeUntil", {
                             time: timeLabel(currentFreeSlot.end),
@@ -275,14 +275,14 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                 {hoverPos && hoveredInfo && (
                     <div
                         role="tooltip"
-                        className="pointer-events-none absolute bottom-full mb-2 z-40 -translate-x-1/2 whitespace-nowrap border border-[#d2dfaf] bg-[#0e2218]/95 px-2.5 py-1 text-xs text-[#edf0d4] shadow-[3px_3px_0_#0a140f]"
+                        className="pointer-events-none absolute bottom-full mb-2 z-40 -translate-x-1/2 whitespace-nowrap border border-room-text-muted bg-room-tooltip-bg/95 px-2.5 py-1 text-xs text-room-text shadow-retro-sm"
                         style={{
                             left: percent(hoverPos.minute),
                         }}
                     >
-                        <div className="flex items-center gap-1.5 font-pixel text-sm text-[#fff5bb]">
+                        <div className="flex items-center gap-1.5 font-pixel text-sm text-room-glow">
                             <span>{timeLabel(hoverPos.minute)}</span>
-                            <span className="text-[#a5be76]">
+                            <span className="text-room-button">
                                 (
                                 {hoveredInfo.start}
                                 {" "}
@@ -291,7 +291,7 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                                 )
                             </span>
                         </div>
-                        <div className={`mt-0.5 max-w-56 truncate ${hoveredInfo.isVacant ? "text-[#c2cea0]" : "font-medium text-[#ffd8a8]"}`}>
+                        <div className={`mt-0.5 max-w-56 truncate ${hoveredInfo.isVacant ? "text-room-text-subtle" : "font-medium text-room-text-occupied"}`}>
                             {hoveredInfo.title}
                         </div>
                     </div>
@@ -345,19 +345,19 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                                         setHoverPos(null);
                                     }
                                 }}
-                                className="relative flex h-3.5 cursor-pointer select-none border border-[#98aa7d] bg-[#786347] focus:outline-none focus:ring-1 focus:ring-[#fff5bb]"
+                                className="relative flex h-3.5 cursor-pointer select-none border border-room-border-subtle bg-room-track-occupied focus:outline-none focus:ring-1 focus:ring-room-glow"
                             >
                                 {Array.from({ length: 60 }, (_, index) => {
                                     const start = DAY_START + index * 10;
                                     const free = slots.some(slot => slot.start <= start && slot.end >= start + 10);
-                                    return <span key={start} className={`flex-1 pointer-events-none ${free ? "bg-[#b7cf88]" : "bg-[#786347]"}`} />;
+                                    return <span key={start} className={`flex-1 pointer-events-none ${free ? "bg-room-track-free" : "bg-room-track-occupied"}`} />;
                                 })}
 
                                 {/* Active target marker */}
                                 {inDay(target) && (
                                     <span
                                         aria-hidden="true"
-                                        className="pointer-events-none absolute -top-1.5 -bottom-1.5 w-1 -translate-x-1/2 bg-[#fff5bb] shadow-[0_0_0_1px_#142e22]"
+                                        className="pointer-events-none absolute -top-1.5 -bottom-1.5 w-1 -translate-x-1/2 bg-room-glow shadow-seeker"
                                         style={{ left: percent(target) }}
                                     />
                                 )}
@@ -366,7 +366,7 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                                 {hoverPos && inDay(hoverPos.minute) && (
                                     <span
                                         aria-hidden="true"
-                                        className="pointer-events-none absolute -top-1 -bottom-1 w-0.5 -translate-x-1/2 bg-[#ffffff]/70"
+                                        className="pointer-events-none absolute -top-1 -bottom-1 w-0.5 -translate-x-1/2 bg-white/70"
                                         style={{ left: percent(hoverPos.minute) }}
                                     />
                                 )}
@@ -376,29 +376,29 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                             <div
                                 role="img"
                                 aria-label={t("roomCard.ariaTimeline")}
-                                className="relative flex h-3.5 border border-[#525c55] bg-[#3a352a]"
+                                className="relative flex h-3.5 border border-room-border-muted bg-room-track-muted"
                             />
                         )}
             </div>
 
-            <div className="mt-1 flex justify-between font-pixel text-lg text-[#bfca9b]">
+            <div className="mt-1 flex justify-between font-pixel text-lg text-room-text-muted">
                 <span>08:00</span>
                 <span>13:00</span>
                 <span>18:00</span>
             </div>
 
-            <details className="mt-4 border-t border-[#829473] pt-3">
-                <summary className="font-pixel text-2xl text-[#fff5bb]">{t("roomCard.viewSchedule")}</summary>
+            <details className="mt-4 border-t border-room-border-subtle pt-3">
+                <summary className="font-pixel text-2xl text-room-glow">{t("roomCard.viewSchedule")}</summary>
                 {known && (
                     <table className="mt-3 w-full border-collapse text-sm">
                         <tbody>
                             {rows.map((row) => {
                                 const current = now !== undefined && row.start <= now && now < row.end;
                                 return (
-                                    <tr key={`${row.start}-${row.end}-${row.label}`} className={`border-t border-[#829473]/60 ${current ? "bg-[#2c4a33]" : ""} ${row.vacant ? "text-[#c9dca1]" : "text-[#edf0d4]"}`}>
-                                        <td className={`py-2 pl-2 ${current ? "border-l-4 border-[#fff5bb]" : "border-l-4 border-transparent"}`}>
+                                    <tr key={`${row.start}-${row.end}-${row.label}`} className={`border-t border-room-border-subtle/60 ${current ? "bg-room-row-active" : ""} ${row.vacant ? "text-room-text-vacant" : "text-room-text"}`}>
+                                        <td className={`py-2 pl-2 ${current ? "border-l-4 border-room-glow" : "border-l-4 border-transparent"}`}>
                                             {row.vacant ? t("roomCard.vacantScheduleSlot", { min: row.end - row.start }) : row.label}
-                                            {current && <span className="ml-2 font-pixel text-base text-[#fff5bb]">{t("roomCard.nowMarker")}</span>}
+                                            {current && <span className="ml-2 font-pixel text-base text-room-glow">{t("roomCard.nowMarker")}</span>}
                                         </td>
                                         <td className="py-2 pr-1 text-right whitespace-nowrap tabular-nums">
                                             {timeLabel(row.start)}

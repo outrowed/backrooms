@@ -8,6 +8,53 @@
 
 @theme {
     --font-pixel: "VT323", monospace;
+
+    --color-room-bg: #9c9a58;
+    --color-room-grad-from: #bdb866;
+    --color-room-grad-to: #a9a556;
+    --color-room-surface: #183427;
+    --color-room-surface-alt: #193326;
+    --color-room-surface-notice: #163023;
+    --color-room-card: #142e22;
+    --color-room-tooltip-bg: #0a140f;
+    --color-room-row-active: #2c4a33;
+    --color-room-card-muted: #1a221e;
+    --color-room-shadow: #101e16;
+    --color-room-border: #a9b68b;
+    --color-room-border-subtle: #829473;
+    --color-room-border-muted: #525c55;
+    --color-room-text-subtle: #c2cea0;
+    --color-room-text-muted: #d1dbb8;
+    --color-room-text-body: #dae0c7;
+    --color-room-text: #edf0d4;
+    --color-room-badge-occupied-bg: #2a302d;
+    --color-room-selection-bg: #d2df9c;
+    --color-room-accent: #c0d494;
+    --color-room-text-vacant: #b7cf88;
+    --color-room-track-free: #b4d08d;
+    --color-room-button: #a8ba7e;
+    --color-room-button-hover: #c9d49b;
+    --color-room-button-text: #152515;
+    --color-room-glow: #fff5bb;
+    --color-room-heading: #fff1b0;
+    --color-room-text-occupied: #ffd8a8;
+    --color-room-warning-border: #e2b053;
+    --color-room-warning: #c49235;
+    --color-room-alert-border: #e0ae83;
+    --color-room-alert-bg: #3a2920;
+    --color-room-warning-text: #1f190c;
+    --color-room-badge-unknown-text: #dedbb5;
+    --color-room-badge-unknown-border: #a4a487;
+    --color-room-track-occupied: #786347;
+    --color-room-track-muted: #3a352a;
+    --color-room-online-text: #bde0ee;
+    --color-room-online-border: #7e9ba6;
+    --color-room-online-bg: #223942;
+
+    --shadow-retro-sm: 3px 3px 0 var(--color-room-tooltip-bg);
+    --shadow-retro-md: 4px 4px 0 var(--color-room-shadow);
+    --shadow-retro-lg: 6px 6px 0 var(--color-room-tooltip-bg);
+    --shadow-seeker: 0 0 0 1px var(--color-room-card);
 }
 
 @layer base {
@@ -15,10 +62,10 @@
         margin: 0;
         min-width: 320px;
         min-height: 100vh;
-        color: #edf0d4;
+        color: var(--color-room-text);
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         /* Shading layers sit on top of the unmodified CC0 chevron wallpaper (last layer). */
-        background-color: #9c9a58;
+        background-color: var(--color-room-bg);
         background-image:
             url("/grain.svg"), url("/grime.svg"),
             radial-gradient(
@@ -31,7 +78,11 @@
                 transparent 35%,
                 rgb(38 44 12 / 0.6) 100%
             ),
-            linear-gradient(#bdb866, #a9a556), url("/backrooms-chevron.png");
+            linear-gradient(
+                var(--color-room-grad-from),
+                var(--color-room-grad-to)
+            ),
+            url("/backrooms-chevron.png");
         background-size:
             240px 240px,
             640px 640px,
@@ -50,9 +101,13 @@
        omitting heavy SVG turbulence filters and fixed viewport attachments. */
     @media (max-width: 767px), (hover: none) and (pointer: coarse) {
         body {
-            background-color: #9c9a58;
+            background-color: var(--color-room-bg);
             background-image:
-                linear-gradient(#bdb866, #a9a556), url("/backrooms-chevron.png");
+                linear-gradient(
+                    var(--color-room-grad-from),
+                    var(--color-room-grad-to)
+                ),
+                url("/backrooms-chevron.png");
             background-size:
                 100% 100%,
                 150px auto;
@@ -66,7 +121,7 @@
         border-radius: 0;
     }
     :focus-visible {
-        outline: 3px solid #fff3b0;
+        outline: 3px solid var(--color-room-glow);
         outline-offset: 3px;
     }
     button,
@@ -79,8 +134,8 @@
         opacity: 0.5;
     }
     ::selection {
-        background: #d2df9c;
-        color: #132719;
+        background: var(--color-room-selection-bg);
+        color: var(--color-room-tooltip-bg);
     }
 
     /* Ensure content sits above the flicker overlay */
