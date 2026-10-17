@@ -1,4 +1,4 @@
-# <div style="text-align: center;">Backrooms (of UI)</div>
+<h1 style="text-align: center">Backrooms (of UI)</h1>
 
 Vacant room discovery for Universitas Indonesia (UI) faculties, powered by live academic class schedules from [SLCM UI](https://slcm.ui.ac.id) and styled after retro [liminal spaces](https://en.wikipedia.org/wiki/Liminal_space).
 
