@@ -2,7 +2,7 @@
 
 Vacant room discovery for Universitas Indonesia (UI) faculties, powered by live academic class schedules from [SLCM UI](https://slcm.ui.ac.id) and styled after retro [liminal spaces](https://en.wikipedia.org/wiki/Liminal_space).
 
-<img style="object-fit: cover; object-position: top; width: 100%; height: 600px" src="./docs/backrooms-front-page.png" alt="front page of Backrooms website"/>
+<img src="./docs/backrooms-front-page.png" alt="front page of Backrooms website"/>
 
 > Check out live deployment: **https://backrooms.taruna.me**
 
