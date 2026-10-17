@@ -1,6 +1,6 @@
 import { Trans, useTranslation } from "react-i18next";
-import { useRoomState } from "../state/RoomState";
-import { Select } from "./ui/Select";
+import { useRoomState } from "../state/RoomState.js";
+import { Select } from "./ui/Select.js";
 
 export function PageFooter() {
     const { data, currentFaculty } = useRoomState();

@@ -1,10 +1,28 @@
 import { createContext, useContext, useCallback, useEffect, useState, type ReactNode } from "react";
-import { type Day, days, FACULTIES, type FacultyInfo, jakartaNow, roomInfo, type Snapshot, vacancyStatus, type VacancyStatus } from "../../shared/rooms";
+import { type Day, days, FACULTIES, type FacultyInfo, jakartaNow, roomInfo, type Snapshot, vacancyStatus, type VacancyStatus } from "../../shared/rooms.js";
+import type { SupportedLocale } from "../i18n/index.js";
 
-/** Shared discovery state and request lifecycle, owned by the application provider. */
-function useRoomModel() {
-    const initial = jakartaNow();
-    const [faculty, setFaculty] = useState<string>("fasilkom");
+export const SSR_DATA_ELEMENT_ID = "backrooms-ssr-data";
+
+export interface SsrPayload {
+    initialData?: Snapshot;
+    initialFaculty: string;
+    initialNow: number;
+    initialLang: SupportedLocale;
+}
+
+export interface RoomInitialState {
+    initialData?: Snapshot;
+    initialFaculty?: string;
+    initialNow?: number;
+}
+
+/** Shared discovery state and request lifecycle, owned by the application provider */
+function useRoomModel({ initialData, initialFaculty, initialNow }: RoomInitialState = {}) {
+    const initialDate = initialNow !== undefined ? new Date(initialNow) : new Date();
+    const initial = jakartaNow(initialDate);
+    const resolvedFaculty = FACULTIES.find(f => f.id === initialFaculty)?.id || initialData?.faculty || "fasilkom";
+    const [faculty, setFaculty] = useState<string>(resolvedFaculty);
     const [day, setDay] = useState<Day>(initial.day || "senin");
     const [time, setTime] = useState(initial.time >= "08:00" && initial.time < "18:00" ? initial.time : "08:00");
     const [duration, setDuration] = useState(30);
@@ -15,8 +33,8 @@ function useRoomModel() {
     const [showUnavailable, setShowUnavailable] = useState(false);
     const [strata, setStrata] = useState("S1");
     const [sortBy, setSortBy] = useState<"name" | "vacant">("name");
-    const [data, setData] = useState<Snapshot>();
-    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState<Snapshot | undefined>(initialData);
+    const [loading, setLoading] = useState(!initialData);
     const [error, setError] = useState("");
 
     const currentFaculty: FacultyInfo = FACULTIES.find(f => f.id === faculty) || FACULTIES[0];
@@ -46,17 +64,22 @@ function useRoomModel() {
     }, [faculty]);
 
     useEffect(() => {
+        if (data?.faculty === faculty) {
+            setLoading(false);
+            return;
+        }
+
         const controller = new AbortController();
         void load(faculty, controller.signal);
         return () => controller.abort();
-    }, [faculty, load]);
+    }, [data?.faculty, faculty, load]);
 
     const names = data?.schedule ? [...new Set(days.flatMap(value => Object.keys(data.schedule[value] || {})))].sort() : [];
     const candidates = names.filter((name) => {
         const room = roomInfo(name, faculty);
 
-        // Strata only filters which rooms are listed; every program's classes still count as occupied.
-        // Rooms without strata metadata cannot be classified, so they stay visible.
+        // Strata only filters which rooms are listed; every program's classes still count as occupied
+        // Rooms without strata metadata cannot be classified, so they stay visible
         const slots = days.flatMap(value => data?.schedule[value]?.[name] ?? []);
 
         if (strata !== "all" && slots.some(slot => slot.strata) && !slots.some(slot => slot.strata === strata)) return false;
@@ -164,12 +187,22 @@ function useRoomModel() {
 const RoomContext = createContext<ReturnType<typeof useRoomModel> | undefined>(undefined);
 const ClockContext = createContext<Date | undefined>(undefined);
 
-/** Application-wide state survives child component unmounts, not page reloads. */
-export function RoomStateProvider({ children }: { children: ReactNode }) {
-    const model = useRoomModel();
-    const [clock, setClock] = useState(() => new Date());
+/** Application-wide state survives child component unmounts, not page reloads */
+export function RoomStateProvider({
+    children,
+    initialData,
+    initialFaculty,
+    initialNow,
+}: RoomInitialState & { children: ReactNode }) {
+    const model = useRoomModel({
+        initialData,
+        initialFaculty,
+        initialNow,
+    });
+    const [clock, setClock] = useState(() => (initialNow !== undefined ? new Date(initialNow) : new Date()));
 
     useEffect(() => {
+        setClock(new Date());
         const timer = setInterval(() => setClock(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
@@ -183,7 +216,7 @@ export function RoomStateProvider({ children }: { children: ReactNode }) {
     );
 }
 
-/** Access room discovery state under RoomStateProvider. */
+/** Access room discovery state under RoomStateProvider */
 export function useRoomState() {
     const state = useContext(RoomContext);
 
@@ -192,7 +225,7 @@ export function useRoomState() {
     return state;
 }
 
-/** Access the shared clock without subscribing to filter changes. */
+/** Access the shared clock without subscribing to filter changes */
 export function useClock() {
     const clock = useContext(ClockContext);
 

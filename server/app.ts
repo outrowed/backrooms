@@ -1,12 +1,23 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import staticFiles from "@fastify/static";
-import Fastify from "fastify";
-import { FACULTIES } from "../shared/rooms.js";
+import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
+import { FACULTIES, type Snapshot } from "../shared/rooms.js";
+import { renderDocument } from "../src/entry-server.js";
 import type { createStore } from "./store.js";
+
+const FALLBACK_HTML = "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><title>Backrooms (of UI)</title></head><body><div id=\"root\"></div></body></html>";
 
 export async function createApp(store: ReturnType<typeof createStore>, staticRoot = resolve("dist")) {
     const app = Fastify({ logger: true });
+
+    const distIndex = resolve(staticRoot, "index.html");
+    const rootIndex = resolve("index.html");
+    const htmlTemplate = existsSync(distIndex)
+        ? readFileSync(distIndex, "utf-8")
+        : existsSync(rootIndex)
+            ? readFileSync(rootIndex, "utf-8")
+            : FALLBACK_HTML;
 
     app.addHook("onSend", async (_request, reply) => {
         reply.header("X-Content-Type-Options", "nosniff");
@@ -40,7 +51,41 @@ export async function createApp(store: ReturnType<typeof createStore>, staticRoo
         }
     });
 
-    if (existsSync(staticRoot)) await app.register(staticFiles, { root: staticRoot });
+    const renderPage = async (
+        request: FastifyRequest<{ Querystring: { faculty?: string } }>,
+        reply: FastifyReply,
+    ) => {
+        const requestedFaculty = request.query?.faculty;
+        const faculty = FACULTIES.find(f => f.id === requestedFaculty)?.id || "fasilkom";
+        let initialData: Snapshot | undefined;
+
+        try {
+            initialData = await store.get(faculty);
+        }
+        catch {}
+
+        const html = renderDocument(htmlTemplate, {
+            initialData,
+            initialFaculty: faculty,
+            initialNow: Date.now(),
+            cookieHeader: request.headers.cookie,
+            acceptLanguage: request.headers["accept-language"],
+        });
+
+        reply.header("Cache-Control", "no-cache");
+        reply.type("text/html; charset=utf-8");
+        return reply.send(html);
+    };
+
+    app.get("/", renderPage);
+    app.get("/index.html", renderPage);
+
+    if (existsSync(staticRoot)) {
+        await app.register(staticFiles, {
+            root: staticRoot,
+            index: false,
+        });
+    }
 
     return app;
 }

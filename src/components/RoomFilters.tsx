@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { FACULTIES, jakartaNow } from "../../shared/rooms";
+import { FACULTIES, jakartaNow } from "../../shared/rooms.js";
 import { useTranslation } from "react-i18next";
-import { useClock, useRoomState } from "../state/RoomState";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Select } from "./ui/Select";
+import { useClock, useRoomState } from "../state/RoomState.js";
+import { Button } from "./ui/Button.js";
+import { Input } from "./ui/Input.js";
+import { Select } from "./ui/Select.js";
 
 export function RoomFilters() {
     const {

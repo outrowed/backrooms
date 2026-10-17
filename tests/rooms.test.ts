@@ -214,4 +214,40 @@ describe("public SQLite cache with multi-faculty on-demand loading", () => {
         await app.close();
         store.close();
     });
+
+    it("server-renders room results and localized hydration payload on GET /", async () => {
+        const store = createStore(":memory:", async () => schedule);
+        const app = await createApp(store, "/nonexistent");
+
+        const enRes = await app.inject({
+            method: "GET",
+            url: "/",
+            headers: {
+                "accept-language": "en-US,en;q=0.9",
+            },
+        });
+
+        expect(enRes.statusCode).toBe(200);
+        expect(enRes.headers["content-type"]).toContain("text/html");
+        expect(enRes.body).toContain("<html lang=\"en\"");
+        expect(enRes.body).toContain("1 ROOMS FOUND");
+        expect(enRes.body).toContain("A1.09");
+        expect(enRes.body).toContain("id=\"backrooms-ssr-data\"");
+
+        const idRes = await app.inject({
+            method: "GET",
+            url: "/?faculty=ft",
+            headers: {
+                cookie: "backrooms_locale=id",
+            },
+        });
+
+        expect(idRes.statusCode).toBe(200);
+        expect(idRes.body).toContain("<html lang=\"id\"");
+        expect(idRes.body).toContain("1 RUANGAN DITEMUKAN");
+        expect(idRes.body).toContain("\"initialFaculty\":\"ft\"");
+
+        await app.close();
+        store.close();
+    });
 });

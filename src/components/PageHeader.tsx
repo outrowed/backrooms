@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { jakartaNow } from "../../shared/rooms";
-import { useClock, useRoomState } from "../state/RoomState";
+import { jakartaNow } from "../../shared/rooms.js";
+import { useClock, useRoomState } from "../state/RoomState.js";
 
 export function PageHeader() {
     const clock = useClock();

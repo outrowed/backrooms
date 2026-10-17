@@ -1,6 +1,6 @@
-import { days } from "../../shared/rooms";
+import { days } from "../../shared/rooms.js";
 import { useTranslation } from "react-i18next";
-import { useRoomState } from "../state/RoomState";
+import { useRoomState } from "../state/RoomState.js";
 
 export function WeekNavigation() {
     const { day, setDay, candidates, isVacant, hasScheduleForDay, data } = useRoomState();

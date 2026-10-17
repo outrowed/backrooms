@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useRoomState } from "../state/RoomState";
+import { useRoomState } from "../state/RoomState.js";
 
 export function FacultyNotice() {
     const { currentFaculty } = useRoomState();

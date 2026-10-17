@@ -1,8 +1,8 @@
-import { jakartaNow } from "../../shared/rooms";
+import { jakartaNow } from "../../shared/rooms.js";
 import { useTranslation } from "react-i18next";
-import { useClock, useRoomState } from "../state/RoomState";
-import { RoomCard } from "./RoomCard";
-import { Button } from "./ui/Button";
+import { useClock, useRoomState } from "../state/RoomState.js";
+import { RoomCard } from "./RoomCard.js";
+import { Button } from "./ui/Button.js";
 
 export function RoomResults() {
     const { rooms, day, time, duration, data, loading, error, load, hasScheduleForDay, currentFaculty } = useRoomState();

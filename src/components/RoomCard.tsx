@@ -1,7 +1,7 @@
 import { useState, useRef, type MouseEvent, type TouchEvent } from "react";
-import { type ClassSlot, freeSlots, minutes, roomInfo, timeLabel } from "../../shared/rooms";
+import { type ClassSlot, freeSlots, minutes, roomInfo, timeLabel } from "../../shared/rooms.js";
 import { useTranslation } from "react-i18next";
-import { useRoomState } from "../state/RoomState";
+import { useRoomState } from "../state/RoomState.js";
 
 const DAY_START = 480; // 08:00
 const DAY_LENGTH = 600; // 10 hours -> 18:00
@@ -345,19 +345,25 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                                         setHoverPos(null);
                                     }
                                 }}
-                                className="relative flex h-3.5 cursor-pointer select-none border border-room-border-subtle bg-room-track-occupied focus:outline-none focus:ring-1 focus:ring-room-glow"
+                                className="relative h-3.5 cursor-pointer select-none border border-room-border-subtle bg-room-track-occupied focus:outline-none focus:ring-1 focus:ring-room-glow"
                             >
-                                {Array.from({ length: 60 }, (_, index) => {
-                                    const start = DAY_START + index * 10;
-                                    const free = slots.some(slot => slot.start <= start && slot.end >= start + 10);
-                                    return <span key={start} className={`flex-1 pointer-events-none ${free ? "bg-room-track-free" : "bg-room-track-occupied"}`} />;
-                                })}
+                                {slots.map(slot => (
+                                    <span
+                                        key={`${slot.start}-${slot.end}`}
+                                        aria-hidden="true"
+                                        className="pointer-events-none absolute top-0 bottom-0 bg-room-track-free"
+                                        style={{
+                                            left: percent(slot.start),
+                                            width: `${((slot.end - slot.start) / DAY_LENGTH) * 100}%`,
+                                        }}
+                                    />
+                                ))}
 
                                 {/* Active target marker */}
                                 {inDay(target) && (
                                     <span
                                         aria-hidden="true"
-                                        className="pointer-events-none absolute -top-1.5 -bottom-1.5 w-1 -translate-x-1/2 bg-room-glow shadow-seeker"
+                                        className="pointer-events-none absolute -top-1.5 -bottom-1.5 z-10 w-1 -translate-x-1/2 bg-room-glow shadow-seeker"
                                         style={{ left: percent(target) }}
                                     />
                                 )}
@@ -366,7 +372,7 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                                 {hoverPos && inDay(hoverPos.minute) && (
                                     <span
                                         aria-hidden="true"
-                                        className="pointer-events-none absolute -top-1 -bottom-1 w-0.5 -translate-x-1/2 bg-white/70"
+                                        className="pointer-events-none absolute -top-1 -bottom-1 z-10 w-0.5 -translate-x-1/2 bg-white/70"
                                         style={{ left: percent(hoverPos.minute) }}
                                     />
                                 )}
