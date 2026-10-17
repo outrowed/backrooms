@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useRoomState } from "../state/RoomState.js";
 
 export function WeekNavigation() {
-    const { day, setDay, candidates, isVacant, hasScheduleForDay, data } = useRoomState();
+    const { day, setDay, vacantCounts, hasScheduleForDay, data } = useRoomState();
     const { t } = useTranslation();
 
     const dayLabels: Record<string, string> = {
@@ -19,7 +19,7 @@ export function WeekNavigation() {
         <nav aria-label="Weekday availability" className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-6">
             {days.map((value) => {
                 const hasData = hasScheduleForDay(value);
-                const vacantCount = candidates.filter(name => isVacant(name, value)).length;
+                const vacantCount = vacantCounts[value] ?? 0;
 
                 return (
                     <button

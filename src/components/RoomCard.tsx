@@ -1,7 +1,6 @@
-import { useState, useRef, type MouseEvent, type TouchEvent } from "react";
+import { memo, useState, useRef, type MouseEvent, type TouchEvent } from "react";
 import { type ClassSlot, freeSlots, minutes, roomInfo, timeLabel } from "../../shared/rooms.js";
 import { useTranslation } from "react-i18next";
-import { useRoomState } from "../state/RoomState.js";
 
 const DAY_START = 480; // 08:00
 const DAY_LENGTH = 600; // 10 hours -> 18:00
@@ -35,15 +34,16 @@ const percent = (value: number) => `${((value - DAY_START) / DAY_LENGTH) * 100}%
 
 const inDay = (value: number) => value >= DAY_START && value < DAY_START + DAY_LENGTH;
 
-export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fasilkom" }: {
+/** Memoized so clock ticks and unrelated filter changes do not re-render every card */
+export const RoomCard = memo(function RoomCard({ name, classes, time, duration, nowTime, faculty = "fasilkom", onSeek }: {
     name: string;
     classes: ClassSlot[] | undefined;
     time: string;
     duration: number;
     nowTime?: string;
     faculty?: string;
+    onSeek: (time: string) => void;
 }) {
-    const { setTime } = useRoomState();
     const room = roomInfo(name, faculty);
     const slots = classes ? freeSlots(classes) : [];
     const rows = classes ? scheduleRows(classes) : [];
@@ -124,7 +124,7 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
         const min = getMinuteFromPointer(clientX);
 
         if (min !== null) {
-            setTime(timeLabel(min));
+            onSeek(timeLabel(min));
         }
     };
 
@@ -335,13 +335,13 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
                                     if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
                                         e.preventDefault();
                                         const newMin = Math.max(DAY_START, target - 5);
-                                        setTime(timeLabel(newMin));
+                                        onSeek(timeLabel(newMin));
                                         setHoverPos(null);
                                     }
                                     else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
                                         e.preventDefault();
                                         const newMin = Math.min(DAY_START + DAY_LENGTH - 1, target + 5);
-                                        setTime(timeLabel(newMin));
+                                        onSeek(timeLabel(newMin));
                                         setHoverPos(null);
                                     }
                                 }}
@@ -420,4 +420,4 @@ export function RoomCard({ name, classes, time, duration, nowTime, faculty = "fa
             </details>
         </article>
     );
-}
+});

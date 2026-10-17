@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useCallback, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import { type Day, days, FACULTIES, type FacultyInfo, jakartaNow, roomInfo, type Snapshot, vacancyStatus, type VacancyStatus } from "../../shared/rooms.js";
 import type { SupportedLocale } from "../i18n/index.js";
 
@@ -22,7 +22,8 @@ function useRoomModel({ initialData, initialFaculty, initialNow }: RoomInitialSt
     const initialDate = initialNow !== undefined ? new Date(initialNow) : new Date();
     const initial = jakartaNow(initialDate);
     const resolvedFaculty = FACULTIES.find(f => f.id === initialFaculty)?.id || initialData?.faculty || "fasilkom";
-    const [faculty, setFaculty] = useState<string>(resolvedFaculty);
+    const [isPending, startTransition] = useTransition();
+    const [faculty, setFacultyRaw] = useState<string>(resolvedFaculty);
     const [day, setDay] = useState<Day>(initial.day || "senin");
     const [time, setTime] = useState(initial.time >= "08:00" && initial.time < "18:00" ? initial.time : "08:00");
     const [duration, setDuration] = useState(30);
@@ -36,8 +37,18 @@ function useRoomModel({ initialData, initialFaculty, initialNow }: RoomInitialSt
     const [data, setData] = useState<Snapshot | undefined>(initialData);
     const [loading, setLoading] = useState(!initialData);
     const [error, setError] = useState("");
+    const snapshotCache = useRef(new Map<string, Snapshot>(initialData ? [[initialData.faculty, initialData]] : []));
 
-    const currentFaculty: FacultyInfo = FACULTIES.find(f => f.id === faculty) || FACULTIES[0];
+    const setFaculty = useCallback((nextFaculty: string) => {
+        startTransition(() => {
+            setFacultyRaw(nextFaculty);
+        });
+    }, []);
+
+    const currentFaculty: FacultyInfo = useMemo(
+        () => FACULTIES.find(f => f.id === faculty) || FACULTIES[0],
+        [faculty],
+    );
 
     const load = useCallback(async (targetFaculty = faculty, signal?: AbortSignal) => {
         setLoading(true);
@@ -51,6 +62,7 @@ function useRoomModel({ initialData, initialFaculty, initialNow }: RoomInitialSt
             }
 
             const json: Snapshot = await response.json();
+            snapshotCache.current.set(json.faculty, json);
             setData(json);
         }
         catch (error) {
@@ -69,44 +81,90 @@ function useRoomModel({ initialData, initialFaculty, initialNow }: RoomInitialSt
             return;
         }
 
+        // Revisited faculties render instantly from the per-session snapshot cache
+        const cached = snapshotCache.current.get(faculty);
+
+        if (cached) {
+            setData(cached);
+            return;
+        }
+
         const controller = new AbortController();
         void load(faculty, controller.signal);
         return () => controller.abort();
     }, [data?.faculty, faculty, load]);
 
-    const names = data?.schedule ? [...new Set(days.flatMap(value => Object.keys(data.schedule[value] || {})))].sort() : [];
-    const candidates = names.filter((name) => {
-        const room = roomInfo(name, faculty);
+    const names = useMemo(() => {
+        if (!data?.schedule) return [];
 
-        // Strata only filters which rooms are listed; every program's classes still count as occupied
-        // Rooms without strata metadata cannot be classified, so they stay visible
-        const slots = days.flatMap(value => data?.schedule[value]?.[name] ?? []);
+        return [...new Set(days.flatMap(value => Object.keys(data.schedule[value] || {})))].sort();
+    }, [data?.schedule]);
 
-        if (strata !== "all" && slots.some(slot => slot.strata) && !slots.some(slot => slot.strata === strata)) return false;
+    const candidates = useMemo(() => {
+        const queryNormalized = query.trim().toLowerCase();
 
-        if (!includeVirtual && room.isVirtual) return false;
+        return names.filter((name) => {
+            const room = roomInfo(name, faculty);
 
-        return name.toLowerCase().includes(query.trim().toLowerCase())
-            && (building === "all" || room.building === building)
-            && (type === "all" || room.type === type);
-    });
+            // Strata only filters which rooms are listed; every program's classes still count as occupied
+            // Rooms without strata metadata cannot be classified, so they stay visible
+            const slots = days.flatMap(value => data?.schedule[value]?.[name] ?? []);
 
-    const getStatus = (name: string, selected: Day): VacancyStatus => {
+            if (strata !== "all" && slots.some(slot => slot.strata) && !slots.some(slot => slot.strata === strata)) return false;
+
+            if (!includeVirtual && room.isVirtual) return false;
+
+            return name.toLowerCase().includes(queryNormalized)
+                && (building === "all" || room.building === building)
+                && (type === "all" || room.type === type);
+        });
+    }, [names, faculty, data?.schedule, strata, includeVirtual, query, building, type]);
+
+    const getStatus = useCallback((name: string, selected: Day): VacancyStatus => {
         const slots = data?.schedule?.[selected]?.[name];
         return vacancyStatus(slots, time, duration);
-    };
+    }, [data?.schedule, time, duration]);
 
-    const isVacant = (name: string, selected: Day) => getStatus(name, selected) === "vacant";
+    const isVacant = useCallback((name: string, selected: Day) => getStatus(name, selected) === "vacant", [getStatus]);
 
-    const hasScheduleForDay = (selected: Day) => {
+    const hasScheduleForDay = useCallback((selected: Day) => {
         if (!data?.schedule?.[selected]) return false;
 
         return Object.keys(data.schedule[selected]).length > 0;
-    };
+    }, [data?.schedule]);
 
-    const rooms = candidates
-        .filter((name) => {
-            const hasDayData = Boolean(data?.schedule?.[day] && name in data.schedule[day]);
+    const vacantCounts = useMemo(() => {
+        const result = {} as Record<Day, number>;
+
+        if (!data?.schedule) {
+            for (const d of days) result[d] = 0;
+
+            return result;
+        }
+
+        for (const d of days) {
+            const daySchedule = data.schedule[d];
+            let count = 0;
+
+            for (const name of candidates) {
+                const slots = daySchedule?.[name];
+
+                if (slots && vacancyStatus(slots, time, duration) === "vacant") {
+                    count++;
+                }
+            }
+
+            result[d] = count;
+        }
+
+        return result;
+    }, [data?.schedule, candidates, time, duration]);
+
+    const rooms = useMemo(() => {
+        const daySchedule = data?.schedule?.[day];
+
+        const filtered = candidates.filter((name) => {
+            const hasDayData = Boolean(daySchedule && name in daySchedule);
 
             if (!hasDayData) {
                 // Day has no definite schedule data for this room (e.g. Saturday or unscheduled day)
@@ -115,38 +173,42 @@ function useRoomModel({ initialData, initialFaculty, initialNow }: RoomInitialSt
             }
 
             return true;
-        })
-        .sort((a, b) => {
-            if (sortBy === "vacant") {
-                const aHasData = Boolean(data?.schedule?.[day] && a in data.schedule[day]);
-                const bHasData = Boolean(data?.schedule?.[day] && b in data.schedule[day]);
+        });
 
-                // Rank: 3 = Vacant, 2 = Semivacant, 1 = Occupied, 0 = No data / unscheduled
-                const rankOf = (name: string, hasData: boolean) => {
-                    if (!hasData) return 0;
+        if (sortBy === "vacant") {
+            // Precompute rank once per room: 3 = Vacant, 2 = Semivacant, 1 = Occupied, 0 = No data
+            const ranks = new Map<string, number>();
 
-                    const status = getStatus(name, day);
+            for (const name of filtered) {
+                const slots = daySchedule?.[name];
 
-                    if (status === "vacant") return 3;
-
-                    if (status === "semivacant") return 2;
-
-                    return 1;
-                };
-
-                const aRank = rankOf(a, aHasData);
-                const bRank = rankOf(b, bHasData);
-
-                if (aRank !== bRank) {
-                    return bRank - aRank;
+                if (!slots) {
+                    ranks.set(name, 0);
+                    continue;
                 }
+
+                const status = vacancyStatus(slots, time, duration);
+                const rank = status === "vacant" ? 3 : status === "semivacant" ? 2 : 1;
+                ranks.set(name, rank);
             }
 
-            return a.localeCompare(b, undefined, {
-                numeric: true,
-                sensitivity: "base",
+            return filtered.sort((a, b) => {
+                const diff = (ranks.get(b) ?? 0) - (ranks.get(a) ?? 0);
+
+                if (diff !== 0) return diff;
+
+                return a.localeCompare(b, undefined, {
+                    numeric: true,
+                    sensitivity: "base",
+                });
             });
-        });
+        }
+
+        return filtered.sort((a, b) => a.localeCompare(b, undefined, {
+            numeric: true,
+            sensitivity: "base",
+        }));
+    }, [candidates, data?.schedule, day, showUnavailable, sortBy, time, duration]);
 
     return {
         faculty,
@@ -174,9 +236,11 @@ function useRoomModel({ initialData, initialFaculty, initialNow }: RoomInitialSt
         setSortBy,
         data,
         loading,
+        isPending,
         error,
         load,
         candidates,
+        vacantCounts,
         getStatus,
         isVacant,
         hasScheduleForDay,
@@ -186,6 +250,22 @@ function useRoomModel({ initialData, initialFaculty, initialNow }: RoomInitialSt
 
 const RoomContext = createContext<ReturnType<typeof useRoomModel> | undefined>(undefined);
 const ClockContext = createContext<Date | undefined>(undefined);
+
+/** Ticks independently so the 1-second clock never re-renders the room model or its consumers */
+function ClockProvider({ initialNow, children }: {
+    initialNow?: number;
+    children: ReactNode;
+}) {
+    const [clock, setClock] = useState(() => (initialNow !== undefined ? new Date(initialNow) : new Date()));
+
+    useEffect(() => {
+        setClock(new Date());
+        const timer = setInterval(() => setClock(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    return <ClockContext.Provider value={clock}>{children}</ClockContext.Provider>;
+}
 
 /** Application-wide state survives child component unmounts, not page reloads */
 export function RoomStateProvider({
@@ -199,19 +279,12 @@ export function RoomStateProvider({
         initialFaculty,
         initialNow,
     });
-    const [clock, setClock] = useState(() => (initialNow !== undefined ? new Date(initialNow) : new Date()));
-
-    useEffect(() => {
-        setClock(new Date());
-        const timer = setInterval(() => setClock(new Date()), 1000);
-        return () => clearInterval(timer);
-    }, []);
 
     return (
         <RoomContext.Provider value={model}>
-            <ClockContext.Provider value={clock}>
+            <ClockProvider initialNow={initialNow}>
                 {children}
-            </ClockContext.Provider>
+            </ClockProvider>
         </RoomContext.Provider>
     );
 }

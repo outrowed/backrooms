@@ -5,7 +5,8 @@ import { RoomCard } from "./RoomCard.js";
 import { Button } from "./ui/Button.js";
 
 export function RoomResults() {
-    const { rooms, day, time, duration, data, loading, error, load, hasScheduleForDay, currentFaculty } = useRoomState();
+    const { rooms, day, time, setTime, duration, data, loading, isPending, error, load, hasScheduleForDay, currentFaculty } = useRoomState();
+    const switching = isPending || (loading && data?.faculty !== currentFaculty.id);
     const now = jakartaNow(useClock());
     const nowTime = now.day === day && now.time >= "08:00" && now.time < "18:00" ? now.time : undefined;
     const hasData = hasScheduleForDay(day);
@@ -45,7 +46,7 @@ export function RoomResults() {
                 </div>
             )}
             {data && (
-                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                <div aria-busy={switching} className={`grid gap-5 transition-opacity duration-150 md:grid-cols-2 lg:grid-cols-3 ${switching ? "pointer-events-none opacity-50" : ""}`}>
                     {rooms.map(name => (
                         <RoomCard
                             key={name}
@@ -54,7 +55,8 @@ export function RoomResults() {
                             time={time}
                             duration={duration}
                             nowTime={nowTime}
-                            faculty={currentFaculty.id}
+                            faculty={data.faculty}
+                            onSeek={setTime}
                         />
                     ))}
                 </div>
