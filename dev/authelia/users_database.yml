@@ -1,0 +1,17 @@
+# Test users for local Authelia integration testing
+# Password for all test accounts is: password123
+users:
+  admin_dev:
+    displayname: "Test Administrator"
+    password: "$argon2id$v=19$m=65536,t=3,p=4$2kUFU7u3knLrJzLxkb1WsQ$6sSBRiOHmQCGityymS2xch7zHrv/BdV3zYfSG205yhA"
+    email: "admin@example.com"
+    groups:
+      - "admins"
+      - "devs"
+
+  guest_dev:
+    displayname: "Guest Student"
+    password: "$argon2id$v=19$m=65536,t=3,p=4$2kUFU7u3knLrJzLxkb1WsQ$6sSBRiOHmQCGityymS2xch7zHrv/BdV3zYfSG205yhA"
+    email: "guest@example.com"
+    groups:
+      - "users"

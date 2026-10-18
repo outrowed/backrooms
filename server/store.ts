@@ -110,7 +110,11 @@ export function createStore(path: string, fetcher: ScheduleFetcher = defaultFetc
         };
     }
 
-    async function refresh(faculty: FacultyInfo): Promise<Snapshot> {
+    async function refresh(facultyIdOrInfo: string | FacultyInfo): Promise<Snapshot> {
+        const faculty = typeof facultyIdOrInfo === "string"
+            ? FACULTIES.find(f => f.id === facultyIdOrInfo) || FACULTIES[0]
+            : facultyIdOrInfo;
+
         const inFlight = inFlightMap.get(faculty.id);
 
         if (inFlight) return inFlight;
@@ -191,9 +195,19 @@ export function createStore(path: string, fetcher: ScheduleFetcher = defaultFetc
         return refresh(faculty);
     }
 
+    function invalidate(facultyId?: string) {
+        if (facultyId) {
+            db.prepare("UPDATE faculty_sync SET fetched_at = 0 WHERE faculty = ?").run(facultyId);
+        }
+        else {
+            db.exec("UPDATE faculty_sync SET fetched_at = 0;");
+        }
+    }
+
     return {
         get,
         refresh,
+        invalidate,
         close: () => db.close(),
     };
 }

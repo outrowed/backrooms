@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { AdminFab } from "./components/AdminFab.js";
 import { FacultyNotice } from "./components/FacultyNotice.js";
 import { PageFooter } from "./components/PageFooter.js";
 import { PageHeader } from "./components/PageHeader.js";
@@ -41,6 +42,7 @@ export default function App() {
 
             <FacultyNotice />
             <PageFooter />
+            <AdminFab />
         </div>
     );
 }

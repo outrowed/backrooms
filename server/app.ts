@@ -4,6 +4,12 @@ import staticFiles from "@fastify/static";
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import { FACULTIES, type Snapshot } from "../shared/rooms.js";
 import { renderDocument } from "../src/entry-server.js";
+import {
+    getAuthenticatedGroups,
+    getAuthenticatedUser,
+    isAuthorizedAdmin,
+    verifyAdminRequest,
+} from "./admin.js";
 import type { createStore } from "./store.js";
 
 const FALLBACK_HTML = "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><title>Backrooms (of UI)</title></head><body><div id=\"root\"></div></body></html>";
@@ -19,6 +25,21 @@ export async function createApp(store: ReturnType<typeof createStore>, staticRoo
             ? readFileSync(rootIndex, "utf-8")
             : FALLBACK_HTML;
 
+    const devAuthUser = process.env.DEV_AUTH_USER?.trim();
+    const devAuthGroups = process.env.DEV_AUTH_GROUPS?.trim();
+
+    if (devAuthUser || devAuthGroups) {
+        app.addHook("onRequest", async (request) => {
+            if (devAuthUser && !request.headers["remote-user"] && !request.headers["x-forwarded-user"]) {
+                request.headers["remote-user"] = devAuthUser;
+            }
+
+            if (devAuthGroups && !request.headers["remote-groups"] && !request.headers["x-forwarded-groups"]) {
+                request.headers["remote-groups"] = devAuthGroups;
+            }
+        });
+    }
+
     app.addHook("onSend", async (_request, reply) => {
         reply.header("X-Content-Type-Options", "nosniff");
         reply.header("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -26,6 +47,68 @@ export async function createApp(store: ReturnType<typeof createStore>, staticRoo
     });
 
     app.get("/api/health", async () => ({ ok: true }));
+
+    app.get("/api/admin/me", async (request) => {
+        const user = getAuthenticatedUser(request);
+        const groups = getAuthenticatedGroups(request);
+        const admin = isAuthorizedAdmin(user, groups);
+
+        return {
+            authenticated: Boolean(user || groups.length > 0),
+            user,
+            groups,
+            isAdmin: admin,
+        };
+    });
+
+    app.post<{
+        Body?: { faculty?: string };
+        Querystring?: { faculty?: string };
+    }>("/api/admin/cache/refresh", async (request, reply) => {
+        const auth = verifyAdminRequest(request);
+
+        if (!auth.ok) {
+            return reply.code(auth.status).send({ error: auth.error });
+        }
+
+        const facultyParam = request.body?.faculty || request.query?.faculty;
+
+        if (facultyParam === "all") {
+            store.invalidate();
+            return {
+                ok: true,
+                faculty: "all",
+                invalidated: true,
+                message: "All faculty caches have been marked stale and will be re-fetched on demand.",
+                by: auth.username,
+            };
+        }
+
+        const facultyId = facultyParam || "fasilkom";
+        const faculty = FACULTIES.find(f => f.id === facultyId);
+
+        if (!faculty) {
+            return reply.code(400).send({ error: `Unknown faculty: "${facultyId}"` });
+        }
+
+        try {
+            const snapshot = await store.refresh(faculty);
+            const totalRooms = Object.keys(snapshot.schedule.senin || {}).length;
+
+            return {
+                ok: true,
+                faculty: faculty.id,
+                refreshedAt: snapshot.fetchedAt,
+                seninRoomsCount: totalRooms,
+                by: auth.username,
+            };
+        }
+        catch (err) {
+            return reply.code(502).send({
+                error: `Failed to force refresh schedule for ${faculty.shortName}: ${(err as Error).message}`,
+            });
+        }
+    });
 
     app.get("/api/faculties", async () => ({
         faculties: FACULTIES.map(f => ({

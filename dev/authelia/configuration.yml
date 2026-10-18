@@ -1,0 +1,46 @@
+server:
+  address: "tcp://0.0.0.0:9091/"
+
+log:
+  level: "info"
+
+theme: "light"
+
+identity_validation:
+  reset_password:
+    jwt_secret: "test_jwt_secret_must_be_long_enough_for_authelia_validation_12345"
+
+authentication_backend:
+  file:
+    path: "/config/users_database.yml"
+    watch: true
+
+access_control:
+  default_policy: "deny"
+  rules:
+    - domain:
+        - "localhost"
+        - "127.0.0.1"
+      policy: "one_factor"
+
+session:
+  name: "authelia_session"
+  secret: "test_session_secret_must_be_long_enough_for_authelia_validation_12345"
+  expiration: 3600
+  inactivity: 300
+  cookies:
+    - domain: "localhost"
+      authelia_url: "http://localhost:9091"
+
+regulation:
+  max_retries: 20
+
+storage:
+  encryption_key: "test_storage_encryption_key_must_be_long_enough_for_validation_12345"
+  local:
+    path: "/tmp/authelia.sqlite3"
+
+notifier:
+  disable_startup_check: true
+  filesystem:
+    filename: "/tmp/notification.txt"

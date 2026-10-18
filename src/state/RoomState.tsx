@@ -37,7 +37,29 @@ function useRoomModel({ initialData, initialFaculty, initialNow }: RoomInitialSt
     const [data, setData] = useState<Snapshot | undefined>(initialData);
     const [loading, setLoading] = useState(!initialData);
     const [error, setError] = useState("");
+    const [adminState, setAdminState] = useState<{
+        isAdmin: boolean;
+        user: string | null;
+    }>({
+        isAdmin: false,
+        user: null,
+    });
     const snapshotCache = useRef(new Map<string, Snapshot>(initialData ? [[initialData.faculty, initialData]] : []));
+
+    useEffect(() => {
+        // Query auth status once on client mount
+        fetch("/api/admin/me")
+            .then(res => (res.ok ? res.json() : null))
+            .then((res) => {
+                if (res && typeof res.isAdmin === "boolean") {
+                    setAdminState({
+                        isAdmin: res.isAdmin,
+                        user: res.user || null,
+                    });
+                }
+            })
+            .catch(() => {});
+    }, []);
 
     const setFaculty = useCallback((nextFaculty: string) => {
         startTransition(() => {
@@ -93,6 +115,37 @@ function useRoomModel({ initialData, initialFaculty, initialNow }: RoomInitialSt
         void load(faculty, controller.signal);
         return () => controller.abort();
     }, [data?.faculty, faculty, load]);
+
+    const forceRefresh = useCallback(async (targetFaculty = faculty) => {
+        setLoading(true);
+        setError("");
+
+        try {
+            const response = await fetch("/api/admin/cache/refresh", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ faculty: targetFaculty }),
+            });
+
+            if (!response.ok) {
+                const errJson = await response.json().catch(() => null);
+                throw new Error(errJson?.error || `Failed to refresh cache (HTTP ${response.status})`);
+            }
+
+            snapshotCache.current.delete(targetFaculty);
+            await load(targetFaculty);
+            return true;
+        }
+        catch (err) {
+            setError((err as Error).message);
+            return false;
+        }
+        finally {
+            setLoading(false);
+        }
+    }, [faculty, load]);
 
     const names = useMemo(() => {
         if (!data?.schedule) return [];
@@ -237,6 +290,9 @@ function useRoomModel({ initialData, initialFaculty, initialNow }: RoomInitialSt
         data,
         loading,
         isPending,
+        isAdmin: adminState.isAdmin,
+        adminUser: adminState.user,
+        forceRefresh,
         error,
         load,
         candidates,

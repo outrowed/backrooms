@@ -90,11 +90,27 @@
         "source": "Source: <0>{{name}}</0>",
         "cachedAt": "- Cached {{dateStr}} WIB",
         "stale": "- STALE - last known schedule",
-        "wallpaperAttribution": "Wallpaper: <0>{{title}}</0> by For underscore dev, <1>{{license}}</1> - <2>{{font}}</2>: <3>{{fontLicense}}</3>",
-        "wallpaperTitle": "\"Stylized Backrooms 'Chevron' Wallpaper\"",
-        "wallpaperLicense": "CC0 via Wikimedia Commons",
-        "fontLicense": "SIL Open Font License",
         "languageLabel": "Language:",
         "projectCredit": "An open source project by <0>{{author}}</0> · Released under <1>{{license}}</1> · <2>{{github}}</2>"
+    },
+    "admin": {
+        "panelLabel": "Admin Controls",
+        "openTrigger": "Admin Menu",
+        "closeTrigger": "Close Menu",
+        "toggleMenuTitle": "Toggle Admin Control Panel",
+        "menuTitle": "Admin Control Panel",
+        "closeMenu": "Close",
+        "operator": "Operator",
+        "activeFaculty": "Active Faculty",
+        "cachedRooms": "Cached Rooms",
+        "roomsCount": "{{count}} rooms",
+        "cacheStatus": "Cache Status",
+        "staleNotice": "stale",
+        "actionsHeading": "Actions",
+        "forceRefreshCurrent": "Force Refresh ({{faculty}})",
+        "invalidateAll": "Invalidate All Caches",
+        "refreshing": "Refreshing...",
+        "refreshSuccess": "Schedule for {{faculty}} refreshed!",
+        "refreshAllSuccess": "All faculty caches marked stale and revalidating!"
     }
 }

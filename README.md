@@ -50,6 +50,25 @@ Optional runtime environment variables:
 | `PORT` | `3017` | HTTP server listening port |
 | `HOST` | `0.0.0.0` | HTTP server bind address |
 | `DB_PATH` | `data/rooms.sqlite` | Path to the SQLite cache file |
+| `ADMIN_CONFIG_PATH` | `data/admins.json` | Path to administrator JSON configuration |
+| `AUTH_USER_HEADER` | `Remote-User` | Reverse proxy header forwarding authenticated user |
+
+### Admin Configuration (`data/admins.json`)
+
+To enable the admin cache force-refresh feature, configure authorized usernames or groups in `data/admins.json` (or via `ADMINS_JSON` environment variable):
+
+```json
+{
+    "admins": [
+        "taruna"
+    ],
+    "admin_groups": [
+        "admins"
+    ]
+}
+```
+
+Authentication is delegated to external reverse proxy / LDAP forward-auth (Authelia first-party supported via `Remote-User` and `Remote-Groups`). Backrooms performs zero local password management.
 
 ### Development Mode
 
@@ -74,12 +93,35 @@ curl -s "http://127.0.0.1:3017/api/rooms/schedule?faculty=fasilkom" | head -c 12
 
 ### Testing
 
-Run the automated test suite (`vitest`) and static analysis (`biome` + `eslint` + `tsc`):
+Run the standard unit tests, isolated integration tests, or static analysis:
 
 ```bash
+# Fast unit tests (in-memory, no external dependencies)
 pnpm test
+
+# Integration tests (verifies live Authelia forward-auth flow)
+pnpm test:integration
+
+# All tests
+pnpm test:all
+
+# Type-checking and linting
 pnpm check
 ```
+
+#### Running Authelia Locally for Integration Tests
+
+For developers running integration tests without access to an external Authelia deployment, a portable file-based Authelia test fixture is provided in `dev/authelia/`:
+
+```bash
+docker compose -f dev/authelia/compose.yml up -d
+pnpm test:integration
+```
+
+Test credentials configured in `dev/authelia/users_database.yml`:
+- Admin account: `admin_dev` (password: `***`, groups: `admins`, `devs`)
+- Guest account: `guest_dev` (password: `***`, groups: `users`)
+
 
 ## Production
 

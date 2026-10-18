@@ -90,11 +90,27 @@
         "source": "Sumber: <0>{{name}}</0>",
         "cachedAt": "- Tembolok {{dateStr}} WIB",
         "stale": "- KEDALUWARSA - jadwal terakhir yang diketahui",
-        "wallpaperAttribution": "Wallpaper: <0>{{title}}</0> oleh For underscore dev, <1>{{license}}</1> - <2>{{font}}</2>: <3>{{fontLicense}}</3>",
-        "wallpaperTitle": "\"Stylized Backrooms 'Chevron' Wallpaper\"",
-        "wallpaperLicense": "CC0 via Wikimedia Commons",
-        "fontLicense": "SIL Open Font License",
         "languageLabel": "Bahasa:",
         "projectCredit": "Proyek <3>open source</3> oleh <0>{{author}}</0> · Dirilis di bawah lisensi <1>{{license}}</1> · <2>{{github}}</2>"
+    },
+    "admin": {
+        "panelLabel": "Kontrol Admin",
+        "openTrigger": "Menu Admin",
+        "closeTrigger": "Tutup Menu",
+        "toggleMenuTitle": "Buka/Tutup Panel Kontrol Admin",
+        "menuTitle": "Panel Kontrol Admin",
+        "closeMenu": "Tutup",
+        "operator": "Operator",
+        "activeFaculty": "Fakultas Aktif",
+        "cachedRooms": "Ruangan Tercatat",
+        "roomsCount": "{{count}} ruangan",
+        "cacheStatus": "Status Tembolok",
+        "staleNotice": "kedaluwarsa",
+        "actionsHeading": "Tindakan",
+        "forceRefreshCurrent": "Segarkan Paksa ({{faculty}})",
+        "invalidateAll": "Batalkan Semua Tembolok",
+        "refreshing": "Menyegarkan...",
+        "refreshSuccess": "Jadwal {{faculty}} berhasil diperbarui!",
+        "refreshAllSuccess": "Semua tembolok fakultas ditandai kedaluwarsa dan diperbarui!"
     }
 }
