@@ -56,6 +56,7 @@ describe("startup cache invalidation", () => {
         // Cache still serves the persisted data immediately on cold read
         const initial = await store.get("fasilkom");
         expect(initial.stale).toBe(true);
+        expect(initial.fetchedAt).toBeGreaterThan(0);
         expect(initial.schedule.senin["A1.09"]).toBeDefined();
 
         // Background re-fetch is triggered because it was stale

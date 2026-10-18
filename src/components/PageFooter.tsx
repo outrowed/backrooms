@@ -53,12 +53,16 @@ export function PageFooter() {
                     />
                     {data && (
                         <>
-                            {" "}
-                            {t("footer.cachedAt", {
-                                dateStr: new Date(data.fetchedAt).toLocaleString("en-GB", {
-                                    timeZone: "Asia/Jakarta",
-                                }),
-                            })}
+                            {data.fetchedAt > 0 && (
+                                <>
+                                    {" "}
+                                    {t("footer.cachedAt", {
+                                        dateStr: new Date(data.fetchedAt).toLocaleString("en-GB", {
+                                            timeZone: "Asia/Jakarta",
+                                        }),
+                                    })}
+                                </>
+                            )}
                             {data.stale && ` ${t("footer.stale")}`}
                         </>
                     )}

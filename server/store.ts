@@ -70,17 +70,28 @@ export function createStore(path: string, fetcher: ScheduleFetcher = defaultFetc
         );
         CREATE TABLE IF NOT EXISTS faculty_sync (
             faculty TEXT PRIMARY KEY,
-            fetched_at INTEGER NOT NULL
+            fetched_at INTEGER NOT NULL,
+            is_stale INTEGER NOT NULL DEFAULT 0
         );
-        UPDATE faculty_sync SET fetched_at = 0;
     `);
+
+    const syncCols = (db.prepare("PRAGMA table_info(faculty_sync)").all() as { name: string }[]).map(c => c.name);
+
+    if (!syncCols.includes("is_stale")) {
+        db.exec("ALTER TABLE faculty_sync ADD COLUMN is_stale INTEGER NOT NULL DEFAULT 0;");
+    }
+
+    db.exec("UPDATE faculty_sync SET is_stale = 1;");
 
     const inFlightMap = new Map<string, Promise<Snapshot>>();
     const retryAfterMap = new Map<string, number>();
 
     function read(facultyId: string): Snapshot | undefined {
-        const sync = db.prepare("SELECT fetched_at FROM faculty_sync WHERE faculty = ?").get(facultyId) as
-            | { fetched_at: number }
+        const sync = db.prepare("SELECT fetched_at, is_stale FROM faculty_sync WHERE faculty = ?").get(facultyId) as
+            | {
+                fetched_at: number;
+                is_stale?: number;
+            }
             | undefined;
 
         if (!sync) return undefined;
@@ -102,11 +113,13 @@ export function createStore(path: string, fetcher: ScheduleFetcher = defaultFetc
             }
         }
 
+        const isStale = Boolean(sync.is_stale) || sync.fetched_at <= 0 || (now() - sync.fetched_at >= TTL);
+
         return {
             faculty: facultyId,
             schedule,
             fetchedAt: sync.fetched_at,
-            stale: now() - sync.fetched_at >= TTL,
+            stale: isStale,
         };
     }
 
@@ -143,7 +156,7 @@ export function createStore(path: string, fetcher: ScheduleFetcher = defaultFetc
                         insert.run(faculty.id, name, JSON.stringify(roomDays));
                     }
 
-                    db.prepare("INSERT OR REPLACE INTO faculty_sync VALUES (?, ?)").run(faculty.id, now());
+                    db.prepare("INSERT OR REPLACE INTO faculty_sync (faculty, fetched_at, is_stale) VALUES (?, ?, 0)").run(faculty.id, now());
                     db.exec("COMMIT");
                 }
                 catch (error) {
@@ -197,10 +210,12 @@ export function createStore(path: string, fetcher: ScheduleFetcher = defaultFetc
 
     function invalidate(facultyId?: string) {
         if (facultyId) {
-            db.prepare("UPDATE faculty_sync SET fetched_at = 0 WHERE faculty = ?").run(facultyId);
+            retryAfterMap.delete(facultyId);
+            db.prepare("UPDATE faculty_sync SET is_stale = 1 WHERE faculty = ?").run(facultyId);
         }
         else {
-            db.exec("UPDATE faculty_sync SET fetched_at = 0;");
+            retryAfterMap.clear();
+            db.exec("UPDATE faculty_sync SET is_stale = 1;");
         }
     }
 

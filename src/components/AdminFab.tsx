@@ -14,7 +14,7 @@ export function AdminFab() {
     if (!isAdmin) return null;
 
     const totalRooms = data?.schedule?.senin ? Object.keys(data.schedule.senin).length : 0;
-    const cacheDateStr = data?.fetchedAt
+    const cacheDateStr = data?.fetchedAt && data.fetchedAt > 0
         ? new Date(data.fetchedAt).toLocaleString("en-GB", { timeZone: "Asia/Jakarta" })
         : null;
 
