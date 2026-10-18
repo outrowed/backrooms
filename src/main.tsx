@@ -1,3 +1,4 @@
+import { parse } from "devalue";
 import React from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { I18nextProvider } from "react-i18next";
@@ -13,7 +14,7 @@ function readSsrPayload(): SsrPayload | undefined {
     if (!el?.textContent) return undefined;
 
     try {
-        return JSON.parse(el.textContent) as SsrPayload;
+        return parse(el.textContent) as SsrPayload;
     }
     catch {
         return undefined;

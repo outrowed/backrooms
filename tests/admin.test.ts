@@ -187,7 +187,7 @@ describe("admin endpoints in Fastify application", () => {
     it("responds with auth identity on GET /api/admin/me", async () => {
         writeFileSync(configPath, JSON.stringify({ admins: ["taruna"] }));
         const store = createStore(":memory:", async () => mockSchedule);
-        const app = await createApp(store, "/nonexistent");
+        const app = await createApp(store, { dev: true });
 
         // 1. Unauthenticated request
         const resUnauth = await app.inject({
@@ -245,7 +245,7 @@ describe("admin endpoints in Fastify application", () => {
             fetchCalls++;
             return mockSchedule;
         });
-        const app = await createApp(store, "/nonexistent");
+        const app = await createApp(store, { dev: true });
 
         // 1. Rejects unauthenticated request with 401
         const resUnauth = await app.inject({

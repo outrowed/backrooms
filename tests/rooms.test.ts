@@ -1,3 +1,4 @@
+import { parse } from "devalue";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../server/app";
 import { parseSlcmClassData } from "../server/slcm";
@@ -198,7 +199,7 @@ describe("public SQLite cache with multi-faculty on-demand loading", () => {
 
     it("exposes public schedule endpoint supporting faculty query parameter", async () => {
         const store = createStore(":memory:", async () => schedule);
-        const app = await createApp(store, "/nonexistent");
+        const app = await createApp(store, { dev: true });
 
         const response = await app.inject("/api/rooms/schedule?faculty=fasilkom");
         expect(response.statusCode).toBe(200);
@@ -217,7 +218,7 @@ describe("public SQLite cache with multi-faculty on-demand loading", () => {
 
     it("server-renders room results and localized hydration payload on GET /", async () => {
         const store = createStore(":memory:", async () => schedule);
-        const app = await createApp(store, "/nonexistent");
+        const app = await createApp(store, { dev: true });
 
         const enRes = await app.inject({
             method: "GET",
@@ -245,7 +246,11 @@ describe("public SQLite cache with multi-faculty on-demand loading", () => {
         expect(idRes.statusCode).toBe(200);
         expect(idRes.body).toContain("<html lang=\"id\"");
         expect(idRes.body).toContain("1 RUANGAN DITEMUKAN");
-        expect(idRes.body).toContain("\"initialFaculty\":\"ft\"");
+        const payload = idRes.body.match(/id="backrooms-ssr-data" type="application\/json">(.*?)<\/script>/s)?.[1];
+        expect(parse(payload || "")).toMatchObject({
+            initialFaculty: "ft",
+            initialLang: "id",
+        });
 
         await app.close();
         store.close();

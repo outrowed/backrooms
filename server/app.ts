@@ -1,9 +1,8 @@
-import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import staticFiles from "@fastify/static";
+import fastifyVite from "@fastify/vite";
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import { FACULTIES, type Snapshot } from "../shared/rooms.js";
-import { renderDocument } from "../src/entry-server.js";
+import type { renderPage as renderSsrPage } from "../src/entry-server.js";
 import {
     getAuthenticatedGroups,
     getAuthenticatedUser,
@@ -12,18 +11,9 @@ import {
 } from "./admin.js";
 import type { createStore } from "./store.js";
 
-const FALLBACK_HTML = "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><title>Backrooms (of UI)</title></head><body><div id=\"root\"></div></body></html>";
-
-export async function createApp(store: ReturnType<typeof createStore>, staticRoot = resolve("dist")) {
+export async function createApp(store: ReturnType<typeof createStore>, options: { dev?: boolean } = {}) {
     const app = Fastify({ logger: true });
-
-    const distIndex = resolve(staticRoot, "index.html");
-    const rootIndex = resolve("index.html");
-    const htmlTemplate = existsSync(distIndex)
-        ? readFileSync(distIndex, "utf-8")
-        : existsSync(rootIndex)
-            ? readFileSync(rootIndex, "utf-8")
-            : FALLBACK_HTML;
+    const dev = options.dev ?? process.env.NODE_ENV === "development";
 
     const devAuthUser = process.env.DEV_AUTH_USER?.trim();
     const devAuthGroups = process.env.DEV_AUTH_GROUPS?.trim();
@@ -43,7 +33,7 @@ export async function createApp(store: ReturnType<typeof createStore>, staticRoo
     app.addHook("onSend", async (_request, reply) => {
         reply.header("X-Content-Type-Options", "nosniff");
         reply.header("Referrer-Policy", "strict-origin-when-cross-origin");
-        reply.header("Content-Security-Policy", "default-src 'self'; img-src 'self'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'");
+        reply.header("Content-Security-Policy", `default-src 'self'; img-src 'self'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'${dev ? " 'nonce-backrooms-development'" : ""}; connect-src 'self'${dev ? " ws: wss:" : ""}; frame-ancestors 'none'; base-uri 'self'`);
     });
 
     app.get("/api/health", async () => ({ ok: true }));
@@ -134,6 +124,29 @@ export async function createApp(store: ReturnType<typeof createStore>, staticRoo
         }
     });
 
+    await app.register(fastifyVite, {
+        root: resolve("."),
+        dev,
+        async createRenderFunction(client) {
+            const render = client.renderPage as typeof renderSsrPage;
+
+            return (context) => {
+                return render(context as Parameters<typeof renderSsrPage>[0]);
+            };
+        },
+        async createHtmlFunction(source, _scope, config) {
+            const template = (await config.createHtmlTemplateFunction(source)) as (context: unknown) => string;
+
+            return function (this: FastifyReply, context: unknown) {
+                const ctx = context as { lang?: string } | undefined;
+                const lang = ctx?.lang === "id" ? "id" : "en";
+                const html = template(context).replace("<html lang=\"en\"", `<html lang="${lang}"`);
+                return this.type("text/html; charset=utf-8").send(html);
+            };
+        },
+    });
+    await app.vite.ready();
+
     const renderPage = async (
         request: FastifyRequest<{ Querystring: { faculty?: string } }>,
         reply: FastifyReply,
@@ -147,7 +160,7 @@ export async function createApp(store: ReturnType<typeof createStore>, staticRoo
         }
         catch {}
 
-        const html = renderDocument(htmlTemplate, {
+        const page = await reply.render({
             initialData,
             initialFaculty: faculty,
             initialNow: Date.now(),
@@ -157,18 +170,11 @@ export async function createApp(store: ReturnType<typeof createStore>, staticRoo
 
         reply.header("Cache-Control", "no-cache");
         reply.type("text/html; charset=utf-8");
-        return reply.send(html);
+        return reply.html(page);
     };
 
     app.get("/", renderPage);
     app.get("/index.html", renderPage);
-
-    if (existsSync(staticRoot)) {
-        await app.register(staticFiles, {
-            root: staticRoot,
-            index: false,
-        });
-    }
 
     return app;
 }

@@ -117,7 +117,7 @@ describe("Authelia live integration test", () => {
         );
 
         const store = createStore(":memory:", async () => mockSchedule);
-        const app = await createApp(store, "/nonexistent");
+        const app = await createApp(store, { dev: true });
 
         // 1. Test simulated Authelia headers from a verified forward_auth session
         const adminMeRes = await app.inject({
@@ -144,7 +144,7 @@ describe("Authelia live integration test", () => {
             refreshCalled = true;
             return mockSchedule;
         });
-        const testApp = await createApp(testStore, "/nonexistent");
+        const testApp = await createApp(testStore, { dev: true });
 
         const refreshRes = await testApp.inject({
             method: "POST",
