@@ -10,7 +10,7 @@ Vacant room discovery for Universitas Indonesia (UI) faculties, powered by live 
 
 Backrooms aggregates faculty room schedules across UI (all faculities, including Fasilkom, FT, FMIPA, FEB, FH, FPsi, FIB, FISIP, FKM, FK, FKG, FIK, FF, FIA, and Sekolah Vokasi) and searches vacant rooms between 08:00 and 18:00 WIB so students can quickly find an empty classroom or lab for self-study or group work (*kerkom*) without logging in.
 
-### Core Features
+## Features
 
 - Queries sub-organization schedules **per faculty** from SLCM, retaining all active courses while allowing room discovery filtered by program level (S1-S3, D2-D3-D4, or all strata).
 - Automatically classifies rooms across **Gedung Baru** and **Gedung Lama** exclusively for Fasilkom, and others (Salemba campus, virtual/online rooms).
@@ -70,7 +70,7 @@ To enable the admin cache force-refresh feature, configure authorized usernames 
 
 Authentication is delegated to external reverse proxy / LDAP forward-auth (Authelia first-party supported via `Remote-User` and `Remote-Groups`). Backrooms performs zero local password management.
 
-### Development Mode
+### Development Server
 
 Run the Fastify API server (port `3017`) and the Vite frontend dev server (port `5177`, proxying `/api` to `127.0.0.1:3017`):
 
@@ -123,7 +123,7 @@ Test credentials configured in `dev/authelia/users_database.yml`:
 - Guest account: `guest_dev` (password: `***`, groups: `users`)
 
 
-## Production
+## Production Build
 
 Compile the TypeScript client, bundle assets with Vite into `dist/`, compile the server into `dist-server/`, and start the single-port Fastify server:
 
