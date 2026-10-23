@@ -19,12 +19,27 @@ Backrooms aggregates faculty room schedules across UI (all faculities, including
 - Caches schedules per faculty in WAL mode with stale-while-revalidate background refreshes, request deduplication, 5-minute failure backoff, and automatic cache invalidation on server startup.
 - Full English (`EN`) and Indonesian (`ID`) localization via `react-i18next`.
 
-## Architecture
+## Deployment
 
-- **`shared/rooms.ts`**: faculty registry, room metadata parser (`roomInfo`), interval clipping/merging (`freeSlots`), and vacancy evaluator (`vacancyStatus`).
-- **`server/`**: Fastify HTTP server (`app.ts`, `index.ts`), Keycloak PKCE + SLCM schedule scraper (`slcm.ts`), and `node:sqlite` persistent cache (`store.ts`).
-- **`src/`**: React 19 + Vite frontend, Tailwind CSS v4 with theme definintions (`index.css`), discovery state provider (`state/RoomState.tsx`), and accessible retro UI components (`components/`).
-- **`tests/`**: Vitest suite covering interval merging, Jakarta timezone boundaries, SLCM schedule parsing, multi-strata room occupancy, and SQLite cache lifecycle.
+Compile the TypeScript client, bundle assets with Vite into `dist/`, compile the server into `dist-server/`, and start the single-port Fastify server:
+
+```bash
+pnpm build
+pnpm start
+```
+
+### Docker
+
+Build and run the multi-stage production container (runs rootless as `1002:1002` with persistent SQLite storage at `/app/data/rooms.sqlite`):
+
+```bash
+docker build -t local/backrooms:0.1.0 .
+docker run -d --name backrooms \
+    -p 3017:3017 \
+    --env-file .env \
+    -v ./data:/app/data \
+    local/backrooms:0.1.0
+```
 
 ## Development
 
@@ -33,6 +48,34 @@ The project uses the following software and configuration:
 - **Node.js**: `>= 24.x` (uses built-in `node:sqlite`)
 - **Package Manager**: `pnpm`
 - **SLCM Credentials**: A valid UI SSO account is required by the backend to authenticate against `login.ui.ac.id` (Keycloak PKCE) and fetch schedules from `slcm.ui.ac.id`.
+
+### Architecture
+
+- **`shared/rooms.ts`**: faculty registry, room metadata parser (`roomInfo`), interval clipping/merging (`freeSlots`), and vacancy evaluator (`vacancyStatus`).
+- **`server/`**: Fastify HTTP server (`app.ts`, `index.ts`), Keycloak PKCE + SLCM schedule scraper (`slcm.ts`), and `node:sqlite` persistent cache (`store.ts`).
+- **`src/`**: React 19 + Vite frontend, Tailwind CSS v4 with theme definintions (`index.css`), discovery state provider (`state/RoomState.tsx`), and accessible retro UI components (`components/`).
+- **`tests/`**: Vitest suite covering interval merging, Jakarta timezone boundaries, SLCM schedule parsing, multi-strata room occupancy, and SQLite cache lifecycle.
+
+### Dev Server
+
+Run the Fastify API server (port `3017`) and the Vite frontend dev server (port `5177`, proxying `/api` to `127.0.0.1:3017`):
+
+```bash
+pnpm dev:api
+pnpm dev
+```
+
+Verify the API health and faculty schedule endpoints once running:
+
+```bash
+curl -s http://127.0.0.1:3017/api/health
+# Expected output:
+# {"ok":true}
+
+curl -s "http://127.0.0.1:3017/api/rooms/schedule?faculty=fasilkom" | head -c 120
+# Expected output:
+# {"faculty":"fasilkom","schedule":{"senin":{...
+```
 
 ### Configuration
 
@@ -70,27 +113,6 @@ To enable the admin cache force-refresh feature, configure authorized usernames 
 
 Authentication is delegated to external reverse proxy / LDAP forward-auth (Authelia first-party supported via `Remote-User` and `Remote-Groups`). Backrooms performs zero local password management.
 
-### Development Server
-
-Run the Fastify API server (port `3017`) and the Vite frontend dev server (port `5177`, proxying `/api` to `127.0.0.1:3017`):
-
-```bash
-pnpm dev:api
-pnpm dev
-```
-
-Verify the API health and faculty schedule endpoints once running:
-
-```bash
-curl -s http://127.0.0.1:3017/api/health
-# Expected output:
-# {"ok":true}
-
-curl -s "http://127.0.0.1:3017/api/rooms/schedule?faculty=fasilkom" | head -c 120
-# Expected output:
-# {"faculty":"fasilkom","schedule":{"senin":{...
-```
-
 ### Testing
 
 Run the standard unit tests, isolated integration tests, or static analysis:
@@ -121,29 +143,6 @@ pnpm test:integration
 Test credentials configured in `dev/authelia/users_database.yml`:
 - Admin account: `admin_dev` (password: `***`, groups: `admins`, `devs`)
 - Guest account: `guest_dev` (password: `***`, groups: `users`)
-
-
-## Production Build
-
-Compile the TypeScript client, bundle assets with Vite into `dist/`, compile the server into `dist-server/`, and start the single-port Fastify server:
-
-```bash
-pnpm build
-pnpm start
-```
-
-### Docker Deployment
-
-Build and run the multi-stage production container (runs rootless as `1002:1002` with persistent SQLite storage at `/app/data/rooms.sqlite`):
-
-```bash
-docker build -t local/backrooms:0.1.0 .
-docker run -d --name backrooms \
-    -p 3017:3017 \
-    --env-file .env \
-    -v ./data:/app/data \
-    local/backrooms:0.1.0
-```
 
 ## License & Attribution
 
