@@ -41,6 +41,42 @@ docker run -d --name backrooms \
     local/backrooms:0.1.0
 ```
 
+## Configuration
+
+Provide credentials via environment variables or an untracked `AUTH_DATA.env` file in the project root:
+
+```env
+SLCM_USERNAME=your_ui_sso_username
+SLCM_PASSWORD=your_ui_sso_password
+```
+
+Optional runtime environment variables:
+
+| Variable | Default | Description |
+| :--- | :--- | :--- |
+| `PORT` | `3017` | HTTP server listening port |
+| `HOST` | `0.0.0.0` | HTTP server bind address |
+| `DB_PATH` | `data/rooms.sqlite` | Path to the SQLite cache file |
+| `ADMIN_CONFIG_PATH` | `data/admins.json` | Path to administrator JSON configuration |
+| `AUTH_USER_HEADER` | `Remote-User` | Reverse proxy header forwarding authenticated user |
+
+### Admin Configuration
+
+To enable the admin cache force-refresh feature, configure authorized usernames or groups in `data/admins.json` (or via `ADMINS_JSON` environment variable):
+
+```json
+{
+    "admins": [
+        "taruna"
+    ],
+    "admin_groups": [
+        "admins"
+    ]
+}
+```
+
+Authentication is delegated to external reverse proxy / LDAP forward-auth (Authelia first-party supported via `Remote-User` and `Remote-Groups`). Backrooms performs zero local password management.
+
 ## Development
 
 The project uses the following software and configuration:
@@ -76,42 +112,6 @@ curl -s "http://127.0.0.1:3017/api/rooms/schedule?faculty=fasilkom" | head -c 12
 # Expected output:
 # {"faculty":"fasilkom","schedule":{"senin":{...
 ```
-
-### Configuration
-
-Provide credentials via environment variables or an untracked `AUTH_DATA.env` file in the project root:
-
-```env
-SLCM_USERNAME=your_ui_sso_username
-SLCM_PASSWORD=your_ui_sso_password
-```
-
-Optional runtime environment variables:
-
-| Variable | Default | Description |
-| :--- | :--- | :--- |
-| `PORT` | `3017` | HTTP server listening port |
-| `HOST` | `0.0.0.0` | HTTP server bind address |
-| `DB_PATH` | `data/rooms.sqlite` | Path to the SQLite cache file |
-| `ADMIN_CONFIG_PATH` | `data/admins.json` | Path to administrator JSON configuration |
-| `AUTH_USER_HEADER` | `Remote-User` | Reverse proxy header forwarding authenticated user |
-
-### Admin Configuration (`data/admins.json`)
-
-To enable the admin cache force-refresh feature, configure authorized usernames or groups in `data/admins.json` (or via `ADMINS_JSON` environment variable):
-
-```json
-{
-    "admins": [
-        "taruna"
-    ],
-    "admin_groups": [
-        "admins"
-    ]
-}
-```
-
-Authentication is delegated to external reverse proxy / LDAP forward-auth (Authelia first-party supported via `Remote-User` and `Remote-Groups`). Backrooms performs zero local password management.
 
 ### Testing
 
